@@ -14,7 +14,7 @@ CREATE TABLE member (
                         kakao_id        VARCHAR(255)    NOT NULL,
                         created_at      TIMESTAMPTZ     NOT NULL DEFAULT now(),
                         updated_at      TIMESTAMPTZ     NOT NULL DEFAULT now(),
-                        is_deleted      BOOLEAN         NOT NULL DEFAULT FALSE,
+                        deleted_at      TIMESTAMPTZ,
 
                         CONSTRAINT uq_member_public_id  UNIQUE (public_id),
                         CONSTRAINT uq_member_kakao_id   UNIQUE (kakao_id)
