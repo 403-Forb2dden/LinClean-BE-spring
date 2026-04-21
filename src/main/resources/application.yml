@@ -17,7 +17,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none # 엔티티 생성 이후 update로 변경
+      ddl-auto: none # 엔티티 변경 후 검증 시에만 잠시 validate 변경
     open-in-view: false
     properties:
       hibernate:
