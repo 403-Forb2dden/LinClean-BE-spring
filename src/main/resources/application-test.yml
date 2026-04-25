@@ -1,1 +1,15 @@
-# 테스트 환경 DB, 로깅 설정 등을 여기에 추가하세요.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  data:
+    redis:
+      password: ""
+
+jwt:
+  secret: test-secret-key-must-be-at-least-256-bits-long-for-hs256-algorithm
+  access-token-expiry: 1800
+  refresh-token-expiry: 1209600
+
+kakao:
+  api-base-url: http://localhost:9999
