@@ -26,7 +26,7 @@ public class Member extends BaseEntity {
     @Column(name = "public_id", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
-    @Column(name = "kakao_id", nullable = false, unique = true)
+    @Column(name = "kakao_id", nullable = false)
     private String kakaoId;
 
     @Column(name = "deleted_at")

@@ -16,8 +16,7 @@ CREATE TABLE member (
                         updated_at      TIMESTAMPTZ     NOT NULL DEFAULT now(),
                         deleted_at      TIMESTAMPTZ,
 
-                        CONSTRAINT uq_member_public_id  UNIQUE (public_id),
-                        CONSTRAINT uq_member_kakao_id   UNIQUE (kakao_id)
+                        CONSTRAINT uq_member_public_id  UNIQUE (public_id)
 );
 
 -- ============================================================
@@ -186,3 +185,10 @@ CREATE TABLE notice (
                         created_at      TIMESTAMPTZ     NOT NULL DEFAULT now(),
                         updated_at      TIMESTAMPTZ     NOT NULL DEFAULT now()
 );
+
+-- ============================================================
+-- 활성 회원 기준 kakao_id 유니크 인덱스 (소프트 삭제 고려)
+-- 탈퇴 후 재가입 시 동일 kakao_id로 새 row 삽입 가능
+-- ============================================================
+CREATE UNIQUE INDEX uq_member_kakao_id_active
+    ON member (kakao_id) WHERE deleted_at IS NULL;
