@@ -2,6 +2,7 @@ package com.linclean.auth.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linclean.auth.exception.InvalidTokenException;
+import com.linclean.global.exception.ErrorCode;
 import com.linclean.global.exception.ErrorResponse;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -54,6 +55,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (InvalidTokenException e) {
             sendErrorResponse(response, e);
+            return;
+        } catch (ClassCastException | IllegalArgumentException e) {
+            sendErrorResponse(response, new InvalidTokenException(ErrorCode.INVALID_TOKEN));
             return;
         }
 
