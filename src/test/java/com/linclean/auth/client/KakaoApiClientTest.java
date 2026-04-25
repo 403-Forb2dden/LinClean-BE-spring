@@ -68,4 +68,27 @@ class KakaoApiClientTest {
                 .isInstanceOf(KakaoAuthException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.KAKAO_SERVER_ERROR);
     }
+
+    @Test
+    @DisplayName("403 응답 - KAKAO_SERVER_ERROR 예외")
+    void getUserInfo_403_throwsKakaoServerError() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(403));
+
+        assertThatThrownBy(() -> kakaoApiClient.getUserInfo("some-token"))
+                .isInstanceOf(KakaoAuthException.class)
+                .extracting("errorCode").isEqualTo(ErrorCode.KAKAO_SERVER_ERROR);
+    }
+
+    @Test
+    @DisplayName("잘못된 JSON 응답 - KAKAO_SERVER_ERROR 예외")
+    void getUserInfo_invalidJson_throwsKakaoServerError() {
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader("Content-Type", "application/json")
+                .setBody("{invalid json"));
+
+        assertThatThrownBy(() -> kakaoApiClient.getUserInfo("valid-token"))
+                .isInstanceOf(KakaoAuthException.class)
+                .extracting("errorCode").isEqualTo(ErrorCode.KAKAO_SERVER_ERROR);
+    }
 }
