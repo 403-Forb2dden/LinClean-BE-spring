@@ -33,6 +33,12 @@ public class RefreshTokenRepository {
         return Optional.ofNullable(redisTemplate.opsForValue().get(key));
     }
 
+    /** jti 확인과 동시에 삭제 (원자적 GETDEL). RTR의 1회성 보장. */
+    public Optional<String> findAndDeleteByMemberIdAndJti(Long memberId, String jti) {
+        String key = buildKey(memberId, jti);
+        return Optional.ofNullable(redisTemplate.opsForValue().getAndDelete(key));
+    }
+
     public void deleteByMemberIdAndJti(Long memberId, String jti) {
         redisTemplate.delete(buildKey(memberId, jti));
     }

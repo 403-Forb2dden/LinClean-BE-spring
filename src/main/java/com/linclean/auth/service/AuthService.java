@@ -33,14 +33,12 @@ public class AuthService {
     public TokenResponse loginWithKakao(KakaoLoginRequest request) {
         String kakaoId = kakaoOAuthService.getKakaoId(request.kakaoAccessToken());
 
-        boolean[] isNew = {false};
-        Member member = memberRepository.findByKakaoId(kakaoId)
-                .orElseGet(() -> {
-                    isNew[0] = true;
-                    return memberRepository.save(Member.builder().kakaoId(kakaoId).build());
-                });
+        var existing = memberRepository.findByKakaoId(kakaoId);
+        Member member = existing.orElseGet(() ->
+                memberRepository.save(Member.builder().kakaoId(kakaoId).build()));
+        boolean isNewMember = existing.isEmpty();
 
-        return issueTokens(member, isNew[0]);
+        return issueTokens(member, isNewMember);
     }
 
     @Transactional(readOnly = true)
@@ -49,16 +47,14 @@ public class AuthService {
         Long memberId = ((Number) claims.get("mid")).longValue();
         String jti = jwtProvider.extractJti(claims);
 
-        boolean exists = refreshTokenRepository
-                .findPublicIdByMemberIdAndJti(memberId, jti).isPresent();
+        boolean deleted = refreshTokenRepository
+                .findAndDeleteByMemberIdAndJti(memberId, jti).isPresent();
 
-        if (!exists) {
+        if (!deleted) {
             log.warn("Refresh Token 재사용 공격 감지! memberId={}, jti={}", memberId, jti);
             refreshTokenRepository.deleteAllByMemberId(memberId);
             throw new InvalidTokenException(ErrorCode.REFRESH_TOKEN_REUSE_DETECTED);
         }
-
-        refreshTokenRepository.deleteByMemberIdAndJti(memberId, jti);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_TOKEN));
