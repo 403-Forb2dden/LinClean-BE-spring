@@ -38,13 +38,12 @@ public class AuthService {
                 memberRepository.save(Member.builder().kakaoId(kakaoId).build()));
         boolean isNewMember = existing.isEmpty();
 
-        return issueTokens(member, isNewMember);
+        return issueTokensForLogin(member, isNewMember);
     }
 
-    @Transactional(readOnly = true)
     public TokenResponse refresh(RefreshRequest request) {
         Claims claims = jwtProvider.parseRefreshToken(request.refreshToken());
-        Long memberId = ((Number) claims.get("mid")).longValue();
+        Long memberId = jwtProvider.extractMemberId(claims);
         String jti = jwtProvider.extractJti(claims);
 
         boolean deleted = refreshTokenRepository
@@ -59,7 +58,7 @@ public class AuthService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_TOKEN));
 
-        return issueTokens(member, null);
+        return rotateTokens(member);
     }
 
     public void logout(Long memberId) {
@@ -67,7 +66,17 @@ public class AuthService {
         log.info("로그아웃 완료 - memberId={}", memberId);
     }
 
-    private TokenResponse issueTokens(Member member, Boolean isNewMember) {
+    private TokenResponse issueTokensForLogin(Member member, boolean isNewMember) {
+        String[] tokens = generateAndSaveTokens(member);
+        return TokenResponse.ofLogin(tokens[0], tokens[1], jwtProperties.accessTokenExpiry(), isNewMember);
+    }
+
+    private TokenResponse rotateTokens(Member member) {
+        String[] tokens = generateAndSaveTokens(member);
+        return TokenResponse.ofRefresh(tokens[0], tokens[1], jwtProperties.accessTokenExpiry());
+    }
+
+    private String[] generateAndSaveTokens(Member member) {
         String accessToken = jwtProvider.createAccessToken(member);
         String refreshToken = jwtProvider.createRefreshToken(member);
 
@@ -77,9 +86,6 @@ public class AuthService {
         Duration ttl = Duration.ofSeconds(jwtProperties.refreshTokenExpiry());
         refreshTokenRepository.save(member.getId(), jti, member.getPublicId(), ttl);
 
-        if (isNewMember == null) {
-            return TokenResponse.ofRefresh(accessToken, refreshToken, jwtProperties.accessTokenExpiry());
-        }
-        return TokenResponse.ofLogin(accessToken, refreshToken, jwtProperties.accessTokenExpiry(), isNewMember);
+        return new String[]{accessToken, refreshToken};
     }
 }

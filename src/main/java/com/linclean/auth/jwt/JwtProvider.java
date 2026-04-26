@@ -76,6 +76,10 @@ public class JwtProvider {
         return claims;
     }
 
+    public Long extractMemberId(Claims claims) {
+        return ((Number) claims.get(CLAIM_MEMBER_ID)).longValue();
+    }
+
     public String extractJti(Claims claims) {
         return claims.getId();
     }

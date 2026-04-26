@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             Claims claims = jwtProvider.parseAccessToken(token);
-            Long memberId = ((Number) claims.get("mid")).longValue();
+            Long memberId = jwtProvider.extractMemberId(claims);
             UUID publicId = UUID.fromString(claims.getSubject());
 
             MemberPrincipal principal = new MemberPrincipal(memberId, publicId);
