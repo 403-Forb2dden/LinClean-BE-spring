@@ -25,15 +25,18 @@ public class KakaoApiClient {
                 .uri(USER_ME_PATH)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + kakaoAccessToken)
                 .retrieve()
+                // 401: 클라이언트가 보낸 카카오 토큰이 유효하지 않음
                 .onStatus(
                         status -> status == HttpStatus.UNAUTHORIZED,
                         response -> Mono.error(new KakaoAuthException(ErrorCode.INVALID_KAKAO_TOKEN))
                 )
+                // 5xx: 카카오 서버 자체 문제
                 .onStatus(
                         status -> status.is5xxServerError(),
                         response -> Mono.error(new KakaoAuthException(ErrorCode.KAKAO_SERVER_ERROR))
                 )
                 .bodyToMono(KakaoUserResponse.class)
+                // 타임아웃, 역직렬화 실패 등 나머지 예외는 모두 서버 오류로 통일
                 .onErrorMap(
                         e -> !(e instanceof KakaoAuthException),
                         e -> {
