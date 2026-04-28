@@ -41,3 +41,11 @@ jwt:
 
 kakao:
   api-base-url: https://kapi.kakao.com
+
+analysis-engine:
+  base-url: ${ANALYSIS_ENGINE_URL}
+  connect-timeout-ms: ${ANALYSIS_ENGINE_CONNECT_TIMEOUT_MS:3000}
+  read-timeout-s: ${ANALYSIS_ENGINE_READ_TIMEOUT_S:5}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}

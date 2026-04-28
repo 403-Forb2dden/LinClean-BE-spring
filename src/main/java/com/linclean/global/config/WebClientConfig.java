@@ -17,6 +17,15 @@ public class WebClientConfig {
     @Value("${kakao.api-base-url}")
     private String kakaoApiBaseUrl;
 
+    @Value("${analysis-engine.base-url}")
+    private String analysisEngineBaseUrl;
+
+    @Value("${analysis-engine.connect-timeout-ms}")
+    private int analysisEngineConnectTimeoutMs;
+
+    @Value("${analysis-engine.read-timeout-s}")
+    private int analysisEngineReadTimeoutS;
+
     @Bean
     public WebClient kakaoWebClient() {
         HttpClient httpClient = HttpClient.create()
@@ -26,6 +35,19 @@ public class WebClientConfig {
 
         return WebClient.builder()
                 .baseUrl(kakaoApiBaseUrl)
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+    }
+
+    @Bean
+    public WebClient analysisEngineWebClient() {
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, analysisEngineConnectTimeoutMs)
+                .doOnConnected(conn ->
+                        conn.addHandlerLast(new ReadTimeoutHandler(analysisEngineReadTimeoutS, TimeUnit.SECONDS)));
+
+        return WebClient.builder()
+                .baseUrl(analysisEngineBaseUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
     }
