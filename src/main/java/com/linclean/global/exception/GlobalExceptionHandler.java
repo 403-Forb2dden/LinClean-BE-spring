@@ -2,6 +2,7 @@ package com.linclean.global.exception;
 
 import com.linclean.auth.exception.InvalidTokenException;
 import com.linclean.auth.exception.KakaoAuthException;
+import com.linclean.domain.analysis.exception.AnalysisException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +18,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException e) {
         log.debug("토큰 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(AnalysisException.class)
+    public ResponseEntity<ErrorResponse> handleAnalysis(AnalysisException e) {
+        log.debug("분석 도메인 오류: {}", e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ErrorResponse.of(e.getErrorCode()));
     }
