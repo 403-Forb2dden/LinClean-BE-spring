@@ -25,6 +25,9 @@ import java.util.UUID;
 @Builder
 public class Analysis extends BaseAuditEntity {
 
+    @Version
+    private Long version;
+
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "analysis_id")
@@ -82,4 +85,30 @@ public class Analysis extends BaseAuditEntity {
 
     @Column(name = "last_checked_at")
     private Instant lastCheckedAt;
+
+    public void updateToSucceeded(
+            String finalUrl, Verdict verdict, Integer score, String summary,
+            StagesDto stages, String engineVersion, Instant analyzedAt, Integer elapsedMs) {
+        this.status = AnalysisStatus.SUCCEEDED;
+        this.finalUrl = finalUrl;
+        this.verdict = verdict;
+        this.score = score;
+        this.summary = summary;
+        this.stages = stages;
+        this.engineVersion = engineVersion;
+        this.analyzedAt = analyzedAt;
+        this.elapsedMs = elapsedMs;
+    }
+
+    public void updateToFailed(
+            String errorCode, Integer errorStage, String errorMessage,
+            String engineVersion, Instant analyzedAt, Integer elapsedMs) {
+        this.status = AnalysisStatus.FAILED;
+        this.errorCode = errorCode;
+        this.errorStage = errorStage;
+        this.errorMessage = errorMessage;
+        this.engineVersion = engineVersion;
+        this.analyzedAt = analyzedAt;
+        this.elapsedMs = elapsedMs;
+    }
 }
