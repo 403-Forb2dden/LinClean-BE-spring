@@ -33,6 +33,12 @@ public class AnalysisCallbackService {
             return;
         }
 
+        if (!analysis.getRequestId().equals(callback.requestId())) {
+            log.warn("콜백 requestId 불일치 - analysisId={}, expected={}, actual={}",
+                    callback.analysisId(), analysis.getRequestId(), callback.requestId());
+            return;
+        }
+
         if (analysis.getStatus() != AnalysisStatus.QUEUED) {
             log.info("중복 콜백 무시 - analysisId={}, currentStatus={}",
                     callback.analysisId(), analysis.getStatus());
