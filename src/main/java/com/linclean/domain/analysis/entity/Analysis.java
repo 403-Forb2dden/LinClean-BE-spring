@@ -60,7 +60,7 @@ public class Analysis extends BaseAuditEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "stages", columnDefinition = "jsonb")
-    private StagesDto stages;
+    private Stages stages;
 
     @Column(name = "error_code", length = 100)
     private String errorCode;
@@ -88,7 +88,7 @@ public class Analysis extends BaseAuditEntity {
 
     public void updateToSucceeded(
             String finalUrl, Verdict verdict, Integer score, String summary,
-            StagesDto stages, String engineVersion, Instant analyzedAt, Integer elapsedMs) {
+            Stages stages, String engineVersion, Instant analyzedAt, Integer elapsedMs) {
         this.status = AnalysisStatus.SUCCEEDED;
         this.finalUrl = finalUrl;
         this.verdict = verdict;

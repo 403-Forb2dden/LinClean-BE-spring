@@ -1,7 +1,7 @@
 package com.linclean.domain.analysis.dto.callback;
 
 import com.linclean.domain.analysis.entity.AnalysisStatus;
-import com.linclean.domain.analysis.entity.StagesDto;
+import com.linclean.domain.analysis.entity.Stages;
 import com.linclean.domain.analysis.entity.Verdict;
 import jakarta.validation.constraints.NotNull;
 
@@ -20,7 +20,7 @@ public record AnalysisResultCallback(
         Verdict verdict,
         Integer score,
         List<ReasonItem> reasons,
-        StagesDto stages,
+        Stages stages,
         String summary,
 
         // failed fields (nullable)

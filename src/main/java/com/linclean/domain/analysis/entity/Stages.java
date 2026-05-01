@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class StagesDto {
+public class Stages {
 
     private ExternalDbStage externalDb;
     private UnchainStage unchain;
