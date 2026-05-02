@@ -64,6 +64,7 @@ CREATE INDEX idx_notification_member_read ON notification (member_id, is_read);
 -- ============================================================
 CREATE TABLE analysis (
                           analysis_id     UUID            PRIMARY KEY,
+                          version         BIGINT          NOT NULL DEFAULT 0,
                           member_id       BIGINT          NOT NULL,
                           original_url    VARCHAR(2048)   NOT NULL,
                           final_url       VARCHAR(2048),
