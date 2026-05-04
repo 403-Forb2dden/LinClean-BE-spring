@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.MDC;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,6 +16,8 @@ import java.time.Instant;
 public class InternalApiKeyFilter extends OncePerRequestFilter {
 
     private static final String HEADER_NAME = "X-Internal-Api-Key";
+    private static final String REQUEST_ID_HEADER = "X-Request-ID";
+    private static final String MDC_REQUEST_ID_KEY = "requestId";
 
     private final String expectedApiKey;
     private final ObjectMapper objectMapper;
@@ -42,7 +45,15 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
             return;
         }
 
-        filterChain.doFilter(request, response);
+        String requestId = request.getHeader(REQUEST_ID_HEADER);
+        if (requestId != null) {
+            MDC.put(MDC_REQUEST_ID_KEY, requestId);
+        }
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove(MDC_REQUEST_ID_KEY);
+        }
     }
 
     @Override
