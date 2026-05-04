@@ -49,3 +49,10 @@ analysis-engine:
 
 internal:
   api-key: ${INTERNAL_API_KEY}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
