@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
+import org.springframework.util.Assert;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -89,6 +90,11 @@ public class Analysis extends BaseAuditEntity {
     public void updateToSucceeded(
             String finalUrl, Verdict verdict, Integer score, String summary,
             Stages stages, String engineVersion, Instant analyzedAt, Integer elapsedMs) {
+        Assert.notNull(finalUrl, "SUCCEEDED 상태 전환에는 finalUrl이 필요합니다");
+        Assert.notNull(verdict, "SUCCEEDED 상태 전환에는 verdict가 필요합니다");
+        Assert.notNull(score, "SUCCEEDED 상태 전환에는 score가 필요합니다");
+        Assert.notNull(stages, "SUCCEEDED 상태 전환에는 stages가 필요합니다");
+        Assert.notNull(summary, "SUCCEEDED 상태 전환에는 summary가 필요합니다");
         this.status = AnalysisStatus.SUCCEEDED;
         this.finalUrl = finalUrl;
         this.verdict = verdict;
