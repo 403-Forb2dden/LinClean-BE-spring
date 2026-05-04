@@ -70,18 +70,16 @@ public class AnalysisCallbackService {
                 callback.elapsedMs()
         );
 
-        if (callback.reasons() != null) {
-            List<AnalysisReason> reasons = callback.reasons().stream()
-                    .map(r -> AnalysisReason.builder()
-                            .analysis(analysis)
-                            .code(r.code())
-                            .stage(r.stage())
-                            .weight(r.weight())
-                            .message(r.message())
-                            .build())
-                    .toList();
-            analysisReasonRepository.saveAll(reasons);
-        }
+        List<AnalysisReason> reasons = callback.reasons().stream()
+                .map(r -> AnalysisReason.builder()
+                        .analysis(analysis)
+                        .code(r.code())
+                        .stage(r.stage())
+                        .weight(r.weight())
+                        .message(r.message())
+                        .build())
+                .toList();
+        analysisReasonRepository.saveAll(reasons);
     }
 
     private void applyFailed(Analysis analysis, AnalysisResultCallback callback) {
