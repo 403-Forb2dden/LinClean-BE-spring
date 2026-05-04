@@ -41,3 +41,10 @@ jwt:
 
 kakao:
   api-base-url: https://kapi.kakao.com
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
