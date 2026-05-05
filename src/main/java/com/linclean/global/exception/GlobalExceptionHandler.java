@@ -1,7 +1,5 @@
 package com.linclean.global.exception;
 
-import com.linclean.auth.exception.InvalidTokenException;
-import com.linclean.auth.exception.KakaoAuthException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,20 +11,6 @@ import java.time.Instant;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException e) {
-        log.debug("토큰 오류: {}", e.getMessage());
-        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
-                .body(ErrorResponse.of(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(KakaoAuthException.class)
-    public ResponseEntity<ErrorResponse> handleKakaoAuth(KakaoAuthException e) {
-        log.warn("카카오 인증 오류: {}", e.getMessage());
-        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
-                .body(ErrorResponse.of(e.getErrorCode()));
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
