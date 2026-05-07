@@ -1,5 +1,6 @@
 package com.linclean.security;
 
+import com.linclean.global.web.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +14,8 @@ import java.util.UUID;
 public class MeController {
 
     @GetMapping("/me")
-    public ResponseEntity<MeResponse> me(@AuthenticationPrincipal MemberPrincipal principal) {
-        return ResponseEntity.ok(new MeResponse(principal.publicId()));
+    public ResponseEntity<ApiResponse<MeResponse>> me(@AuthenticationPrincipal MemberPrincipal principal) {
+        return ResponseEntity.ok(ApiResponse.of(new MeResponse(principal.publicId())));
     }
 
     record MeResponse(UUID publicId) {}
