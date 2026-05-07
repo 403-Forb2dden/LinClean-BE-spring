@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linclean.auth.jwt.JwtAuthenticationEntryPoint;
 import com.linclean.auth.jwt.JwtAuthenticationFilter;
 import com.linclean.auth.jwt.JwtProvider;
+import com.linclean.global.security.InternalApiKeyFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +25,9 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final ObjectMapper objectMapper;
 
+    @Value("${internal.api-key}")
+    private String internalApiKey;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -34,6 +39,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh"
                         ).permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/internal/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -42,6 +49,10 @@ public class SecurityConfig {
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider, objectMapper),
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterBefore(
+                        new InternalApiKeyFilter(internalApiKey, objectMapper),
+                        JwtAuthenticationFilter.class
                 );
 
         return http.build();

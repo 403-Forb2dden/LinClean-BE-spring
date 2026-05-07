@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
+import org.springframework.util.Assert;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -24,6 +25,9 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class Analysis extends BaseAuditEntity {
+
+    @Version
+    private Long version;
 
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
@@ -57,7 +61,7 @@ public class Analysis extends BaseAuditEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "stages", columnDefinition = "jsonb")
-    private StagesDto stages;
+    private Stages stages;
 
     @Column(name = "error_code", length = 100)
     private String errorCode;
@@ -82,4 +86,35 @@ public class Analysis extends BaseAuditEntity {
 
     @Column(name = "last_checked_at")
     private Instant lastCheckedAt;
+
+    public void updateToSucceeded(
+            String finalUrl, Verdict verdict, Integer score, String summary,
+            Stages stages, String engineVersion, Instant analyzedAt, Integer elapsedMs) {
+        Assert.notNull(finalUrl, "SUCCEEDED 상태 전환에는 finalUrl이 필요합니다");
+        Assert.notNull(verdict, "SUCCEEDED 상태 전환에는 verdict가 필요합니다");
+        Assert.notNull(score, "SUCCEEDED 상태 전환에는 score가 필요합니다");
+        Assert.notNull(stages, "SUCCEEDED 상태 전환에는 stages가 필요합니다");
+        Assert.notNull(summary, "SUCCEEDED 상태 전환에는 summary가 필요합니다");
+        this.status = AnalysisStatus.SUCCEEDED;
+        this.finalUrl = finalUrl;
+        this.verdict = verdict;
+        this.score = score;
+        this.summary = summary;
+        this.stages = stages;
+        this.engineVersion = engineVersion;
+        this.analyzedAt = analyzedAt;
+        this.elapsedMs = elapsedMs;
+    }
+
+    public void updateToFailed(
+            String errorCode, Integer errorStage, String errorMessage,
+            String engineVersion, Instant analyzedAt, Integer elapsedMs) {
+        this.status = AnalysisStatus.FAILED;
+        this.errorCode = errorCode;
+        this.errorStage = errorStage;
+        this.errorMessage = errorMessage;
+        this.engineVersion = engineVersion;
+        this.analyzedAt = analyzedAt;
+        this.elapsedMs = elapsedMs;
+    }
 }
