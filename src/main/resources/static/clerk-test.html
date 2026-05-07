@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Clerk 토큰 테스트</title>
+  <script
+    data-clerk-publishable-key="pk_test_bGVnaWJsZS1maW5jaC0zNi5jbGVyay5hY2NvdW50cy5kZXYk"
+    src="https://legible-finch-36.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  ></script>
+  <style>
+    body { font-family: monospace; padding: 24px; max-width: 800px; }
+    button { padding: 8px 16px; margin: 4px; cursor: pointer; font-size: 14px; }
+    textarea { width: 100%; height: 80px; margin-top: 8px; font-size: 11px; }
+    #token-box { background: #f4f4f4; padding: 12px; margin-top: 16px; border-radius: 4px; }
+    .label { font-weight: bold; margin-top: 12px; display: block; }
+    #status { color: gray; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Clerk 로그인 테스트</h2>
+  <p id="status">로딩 중...</p>
+  <div id="controls" style="display:none">
+    <button id="btn-login"  onclick="signIn()"    style="display:none">로그인</button>
+    <button id="btn-token"  onclick="showToken()" style="display:none">토큰 가져오기</button>
+    <button id="btn-logout" onclick="signOut()"   style="display:none">로그아웃</button>
+  </div>
+
+  <div id="token-box" style="display:none">
+    <span class="label">사용자</span>
+    <div id="user-info"></div>
+    <span class="label">세션 토큰 (클릭하면 전체 선택)</span>
+    <textarea id="token-output" readonly onclick="this.select()"></textarea>
+    <span class="label">curl 명령어</span>
+    <textarea id="curl-output" readonly onclick="this.select()"></textarea>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080';
+
+    window.addEventListener('load', async () => {
+      try {
+        await window.Clerk.load();
+        document.getElementById('controls').style.display = 'block';
+
+        if (window.Clerk.user) {
+          document.getElementById('status').textContent =
+            '로그인됨: ' + (window.Clerk.user.primaryEmailAddress?.emailAddress ?? window.Clerk.user.id);
+          document.getElementById('btn-token').style.display  = 'inline';
+          document.getElementById('btn-logout').style.display = 'inline';
+          await showToken();
+        } else {
+          document.getElementById('status').textContent = '로그인 전';
+          document.getElementById('btn-login').style.display = 'inline';
+        }
+      } catch (e) {
+        document.getElementById('status').textContent = '오류: ' + e.message;
+        console.error(e);
+      }
+    });
+
+    async function signIn()  { await window.Clerk.redirectToSignIn({ redirectUrl: location.href }); }
+    async function signOut() { await window.Clerk.signOut(); location.reload(); }
+
+    async function showToken() {
+      const token = await window.Clerk.session.getToken();
+      const user  = window.Clerk.user;
+      document.getElementById('token-box').style.display = 'block';
+      document.getElementById('user-info').textContent =
+        `id: ${user.id}  |  email: ${user.primaryEmailAddress?.emailAddress ?? '-'}`;
+      document.getElementById('token-output').value = token;
+      document.getElementById('curl-output').value =
+        `curl -H "Authorization: Bearer ${token}" \\\n  ${API_BASE}/api/v1/auth/me`;
+    }
+  </script>
+</body>
+</html>
