@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/terms")
 @RequiredArgsConstructor
-public class TermsController {
+public class TermsController implements TermsControllerDocs {
 
     private final TermsService termsService;
 
