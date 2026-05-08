@@ -24,8 +24,7 @@ public interface AnalysisControllerDocs {
 
     @Operation(summary = "URL 분석 요청", description = "URL 안전성 분석을 요청합니다. 분석은 비동기로 수행됩니다.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "202", description = "분석 요청 접수",
-                    content = @Content(schema = @Schema(implementation = AnalysisResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "202", description = "분석 요청 접수"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "유효하지 않은 요청",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요",
@@ -38,8 +37,7 @@ public interface AnalysisControllerDocs {
 
     @Operation(summary = "분석 결과 조회", description = "분석 ID로 분석 결과를 조회합니다.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = AnalysisResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "본인의 분석 결과만 조회 가능",
