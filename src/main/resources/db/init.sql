@@ -213,3 +213,14 @@ CREATE TABLE terms (
 );
 
 CREATE INDEX idx_terms_type ON terms (type);
+
+INSERT INTO terms (type, title, content, content_format, effective_at) VALUES
+    ('terms_of_service', '서비스 이용약관',
+     '제1조 (목적) 본 약관은 LinClean 서비스의 이용에 관한 사항을 규정합니다.',
+     'markdown', '2026-05-01 00:00:00+00'),
+    ('privacy_policy', '개인정보 처리방침',
+     '제1조 (개인정보의 처리 목적) LinClean은 다음의 목적을 위하여 개인정보를 처리합니다.',
+     'markdown', '2026-05-01 00:00:00+00'),
+    ('service_guide', '서비스 이용방법',
+     '## LinClean 이용 가이드\n\n1. URL을 입력하면 안전 여부를 분석합니다.',
+     'markdown', '2026-05-01 00:00:00+00');
