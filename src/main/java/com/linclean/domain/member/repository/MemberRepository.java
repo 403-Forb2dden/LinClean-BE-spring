@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     // @SQLRestriction("deleted_at IS NULL") 덕분에 자동으로 활성 회원만 조회됨
-    Optional<Member> findByKakaoId(String kakaoId);
+    Optional<Member> findByClerkId(String clerkId);
 }

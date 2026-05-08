@@ -14,9 +14,6 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${kakao.api-base-url}")
-    private String kakaoApiBaseUrl;
-
     @Value("${analysis-engine.base-url}")
     private String analysisEngineBaseUrl;
 
@@ -25,19 +22,6 @@ public class WebClientConfig {
 
     @Value("${analysis-engine.read-timeout-s}")
     private int analysisEngineReadTimeoutS;
-
-    @Bean
-    public WebClient kakaoWebClient() {
-        HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2_000)
-                .doOnConnected(conn ->
-                        conn.addHandlerLast(new ReadTimeoutHandler(3, TimeUnit.SECONDS)));
-
-        return WebClient.builder()
-                .baseUrl(kakaoApiBaseUrl)
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .build();
-    }
 
     @Bean
     public WebClient analysisEngineWebClient() {

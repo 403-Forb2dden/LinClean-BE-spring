@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE member (
                         id              BIGINT          GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                         public_id       UUID            NOT NULL DEFAULT gen_random_uuid(),
-                        kakao_id        VARCHAR(255)    NOT NULL,
+                        clerk_id        VARCHAR(255)    NOT NULL,
                         created_at      TIMESTAMPTZ     NOT NULL DEFAULT now(),
                         updated_at      TIMESTAMPTZ     NOT NULL DEFAULT now(),
                         deleted_at      TIMESTAMPTZ,
@@ -188,11 +188,11 @@ CREATE TABLE notice (
 );
 
 -- ============================================================
--- 활성 회원 기준 kakao_id 유니크 인덱스 (소프트 삭제 고려)
--- 탈퇴 후 재가입 시 동일 kakao_id로 새 row 삽입 가능
+-- 활성 회원 기준 clerk_id 유니크 인덱스 (소프트 삭제 고려)
+-- 탈퇴 후 재가입 시 동일 clerk_id로 새 row 삽입 가능
 -- ============================================================
-CREATE UNIQUE INDEX uq_member_kakao_id_active
-    ON member (kakao_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_member_clerk_id_active
+    ON member (clerk_id) WHERE deleted_at IS NULL;
 
 -- ============================================================
 -- 9. TERMS

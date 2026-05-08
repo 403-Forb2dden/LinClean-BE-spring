@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/internal")
 @RequiredArgsConstructor
-public class AnalysisCallbackController {
+public class AnalysisCallbackController implements AnalysisCallbackControllerDocs {
 
     private final AnalysisCallbackService callbackService;
 

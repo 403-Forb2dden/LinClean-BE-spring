@@ -1,7 +1,5 @@
 package com.linclean.global.exception;
 
-import com.linclean.auth.exception.InvalidTokenException;
-import com.linclean.auth.exception.KakaoAuthException;
 import com.linclean.domain.analysis.exception.AnalysisException;
 import com.linclean.domain.terms.exception.TermsException;
 import lombok.extern.slf4j.Slf4j;
@@ -17,23 +15,9 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException e) {
-        log.debug("토큰 오류: {}", e.getMessage());
-        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
-                .body(ErrorResponse.of(e.getErrorCode()));
-    }
-
     @ExceptionHandler(AnalysisException.class)
     public ResponseEntity<ErrorResponse> handleAnalysis(AnalysisException e) {
         log.debug("분석 도메인 오류: {}", e.getMessage());
-        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
-                .body(ErrorResponse.of(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(KakaoAuthException.class)
-    public ResponseEntity<ErrorResponse> handleKakaoAuth(KakaoAuthException e) {
-        log.warn("카카오 인증 오류: {}", e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ErrorResponse.of(e.getErrorCode()));
     }

@@ -30,17 +30,18 @@ spring:
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${CLERK_JWKS_URI}
+
+clerk:
+  allowed-azp: ${CLERK_ALLOWED_AZP}
+
 
 server:
   port: ${API_PORT}
-
-jwt:
-  secret: ${JWT_SECRET}
-  access-token-expiry: ${JWT_ACCESS_TOKEN_EXPIRY:1800}      # 30분 (초 단위)
-  refresh-token-expiry: ${JWT_REFRESH_TOKEN_EXPIRY:1209600} # 14일 (초 단위)
-
-kakao:
-  api-base-url: https://kapi.kakao.com
 
 analysis-engine:
   base-url: ${ANALYSIS_ENGINE_URL}

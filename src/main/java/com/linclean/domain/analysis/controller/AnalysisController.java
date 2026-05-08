@@ -1,9 +1,10 @@
 package com.linclean.domain.analysis.controller;
 
-import com.linclean.auth.jwt.MemberPrincipal;
 import com.linclean.domain.analysis.dto.request.AnalysisRequest;
 import com.linclean.domain.analysis.dto.response.AnalysisResponse;
 import com.linclean.domain.analysis.service.AnalysisService;
+import com.linclean.global.web.ApiResponse;
+import com.linclean.security.MemberPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,23 +22,23 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/analyses")
 @RequiredArgsConstructor
-public class AnalysisController {
+public class AnalysisController implements AnalysisControllerDocs {
 
     private final AnalysisService analysisService;
 
     @PostMapping
-    public ResponseEntity<AnalysisResponse> requestAnalysis(
+    public ResponseEntity<ApiResponse<AnalysisResponse>> requestAnalysis(
             @AuthenticationPrincipal MemberPrincipal principal,
             @Valid @RequestBody AnalysisRequest request) {
         AnalysisResponse response = analysisService.requestAnalysis(principal.memberId(), request);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiResponse.of(response));
     }
 
     @GetMapping("/{analysisId}")
-    public ResponseEntity<AnalysisResponse> getAnalysis(
+    public ResponseEntity<ApiResponse<AnalysisResponse>> getAnalysis(
             @AuthenticationPrincipal MemberPrincipal principal,
             @PathVariable UUID analysisId) {
         AnalysisResponse response = analysisService.getAnalysis(principal.memberId(), analysisId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.of(response));
     }
 }

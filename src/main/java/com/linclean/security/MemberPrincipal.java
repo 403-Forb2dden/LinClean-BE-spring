@@ -1,4 +1,4 @@
-package com.linclean.auth.jwt;
+package com.linclean.security;
 
 import java.util.UUID;
 

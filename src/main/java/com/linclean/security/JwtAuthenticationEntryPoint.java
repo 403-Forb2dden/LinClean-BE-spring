@@ -1,4 +1,4 @@
-package com.linclean.auth.jwt;
+package com.linclean.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linclean.global.exception.ErrorCode;
@@ -28,6 +28,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        objectMapper.writeValue(response.getWriter(), ErrorResponse.of(ErrorCode.INVALID_TOKEN));
+        objectMapper.writeValue(response.getWriter(), ErrorResponse.of(ErrorCode.UNAUTHORIZED));
     }
 }
