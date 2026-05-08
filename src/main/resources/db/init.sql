@@ -193,3 +193,23 @@ CREATE TABLE notice (
 -- ============================================================
 CREATE UNIQUE INDEX uq_member_kakao_id_active
     ON member (kakao_id) WHERE deleted_at IS NULL;
+
+-- ============================================================
+-- 9. TERMS
+-- ============================================================
+CREATE TABLE terms (
+    id             BIGINT       GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    type           VARCHAR(30)  NOT NULL,
+    title          VARCHAR(100) NOT NULL,
+    content        TEXT         NOT NULL,
+    content_format VARCHAR(20)  NOT NULL,
+    effective_at   TIMESTAMPTZ  NOT NULL,
+    created_at     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+
+    CONSTRAINT uq_terms_type         UNIQUE (type),
+    CONSTRAINT chk_terms_type        CHECK (type IN ('terms_of_service', 'privacy_policy', 'service_guide')),
+    CONSTRAINT chk_terms_content_fmt CHECK (content_format IN ('markdown', 'html', 'plain_text'))
+);
+
+CREATE INDEX idx_terms_type ON terms (type);
