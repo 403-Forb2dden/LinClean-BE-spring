@@ -3,11 +3,13 @@ package com.linclean.global.exception;
 import com.linclean.auth.exception.InvalidTokenException;
 import com.linclean.auth.exception.KakaoAuthException;
 import com.linclean.domain.analysis.exception.AnalysisException;
+import com.linclean.domain.terms.exception.TermsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 
@@ -44,6 +46,19 @@ public class GlobalExceptionHandler {
                 .orElse("요청 파라미터가 유효하지 않습니다.");
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse("VALIDATION_ERROR", message, Instant.now()));
+    }
+
+    @ExceptionHandler(TermsException.class)
+    public ResponseEntity<ErrorResponse> handleTerms(TermsException e) {
+        log.debug("약관 도메인 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("INVALID_PATH_VARIABLE", "유효하지 않은 경로 변수입니다.", Instant.now()));
     }
 
     @ExceptionHandler(Exception.class)

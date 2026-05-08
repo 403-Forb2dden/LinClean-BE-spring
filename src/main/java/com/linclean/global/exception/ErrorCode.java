@@ -16,7 +16,8 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_001", "존재하지 않는 회원입니다."),
 
     ANALYSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "ANALYSIS_001", "분석 결과를 찾을 수 없습니다."),
-    ANALYSIS_FORBIDDEN(HttpStatus.FORBIDDEN, "ANALYSIS_002", "본인의 분석 결과만 조회할 수 있습니다.");
+    ANALYSIS_FORBIDDEN(HttpStatus.FORBIDDEN, "ANALYSIS_002", "본인의 분석 결과만 조회할 수 있습니다."),
+    TERMS_NOT_FOUND(HttpStatus.NOT_FOUND, "TERMS_001", "약관 정보를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
