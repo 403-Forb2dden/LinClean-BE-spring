@@ -26,13 +26,13 @@ class TermsServiceTest {
 
     @Test
     void getTerms_found_returnsResponse() {
-        Terms terms = mock(Terms.class);
-        given(terms.getType()).willReturn(TermsType.PRIVACY_POLICY);
-        given(terms.getTitle()).willReturn("개인정보 처리방침");
-        given(terms.getContent()).willReturn("제1조 ...");
-        given(terms.getContentFormat()).willReturn(ContentFormat.MARKDOWN);
-        given(terms.getEffectiveAt()).willReturn(Instant.parse("2026-05-01T00:00:00Z"));
-        given(terms.getUpdatedAt()).willReturn(Instant.parse("2026-05-01T00:00:00Z"));
+        Terms terms = Terms.builder()
+                .type(TermsType.PRIVACY_POLICY)
+                .title("개인정보 처리방침")
+                .content("제1조 ...")
+                .contentFormat(ContentFormat.MARKDOWN)
+                .effectiveAt(Instant.parse("2026-05-01T00:00:00Z"))
+                .build();
         given(termsRepository.findByType(TermsType.PRIVACY_POLICY)).willReturn(Optional.of(terms));
 
         TermsResponse response = termsService.getTerms(TermsType.PRIVACY_POLICY);
