@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-public class MeController {
+public class MeController implements MeControllerDocs {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<MeResponse>> me(@AuthenticationPrincipal MemberPrincipal principal) {
