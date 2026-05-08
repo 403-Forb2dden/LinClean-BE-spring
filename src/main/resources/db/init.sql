@@ -212,8 +212,6 @@ CREATE TABLE terms (
     CONSTRAINT chk_terms_content_fmt CHECK (content_format IN ('markdown', 'html', 'plain_text'))
 );
 
-CREATE INDEX idx_terms_type ON terms (type);
-
 INSERT INTO terms (type, title, content, content_format, effective_at) VALUES
     ('terms_of_service', '서비스 이용약관',
      '제1조 (목적) 본 약관은 LinClean 서비스의 이용에 관한 사항을 규정합니다.',
