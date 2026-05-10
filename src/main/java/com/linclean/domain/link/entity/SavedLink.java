@@ -48,4 +48,12 @@ public class SavedLink extends BaseEntity {
     @Column(name = "is_bookmarked", nullable = false)
     @Builder.Default
     private boolean isBookmarked = false;
+
+    public void toggleBookmark() {
+        this.isBookmarked = !this.isBookmarked;
+    }
+
+    public void updateCategory(Category category) {
+        this.category = category;
+    }
 }
