@@ -1,6 +1,7 @@
 package com.linclean.global.exception;
 
 import com.linclean.domain.analysis.exception.AnalysisException;
+import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.terms.exception.TermsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,13 @@ public class GlobalExceptionHandler {
                 .orElse("요청 파라미터가 유효하지 않습니다.");
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse("VALIDATION_ERROR", message, Instant.now()));
+    }
+
+    @ExceptionHandler(SavedLinkException.class)
+    public ResponseEntity<ErrorResponse> handleSavedLink(SavedLinkException e) {
+        log.debug("저장 링크 도메인 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
     }
 
     @ExceptionHandler(TermsException.class)
