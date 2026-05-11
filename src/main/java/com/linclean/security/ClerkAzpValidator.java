@@ -12,11 +12,17 @@ public class ClerkAzpValidator implements OAuth2TokenValidator<Jwt> {
     private final List<String> allowedParties;
 
     public ClerkAzpValidator(List<String> allowedParties) {
-        this.allowedParties = allowedParties;
+        this.allowedParties = allowedParties.stream()
+                .filter(allowedParty -> !allowedParty.isBlank())
+                .toList();
     }
 
     @Override
     public OAuth2TokenValidatorResult validate(Jwt jwt) {
+        if (allowedParties.isEmpty()) {
+            return OAuth2TokenValidatorResult.success();
+        }
+
         String azp = jwt.getClaimAsString("azp");
         if (azp == null || !allowedParties.contains(azp)) {
             return OAuth2TokenValidatorResult.failure(
