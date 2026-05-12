@@ -23,8 +23,8 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY_001", "카테고리를 찾을 수 없습니다."),
 
     SAVED_LINK_NOT_FOUND(HttpStatus.NOT_FOUND, "SAVED_LINK_001", "저장된 링크를 찾을 수 없습니다."),
-    SAVED_LINK_FORBIDDEN(HttpStatus.FORBIDDEN, "SAVED_LINK_002", "본인의 저장 링크만 접근할 수 있습니다."),
-    SAVED_LINK_FORBIDDEN_DANGER(HttpStatus.UNPROCESSABLE_ENTITY, "SAVED_LINK_003", "위험으로 분류된 URL은 저장할 수 없습니다.");
+    SAVED_LINK_FORBIDDEN_DANGER(HttpStatus.UNPROCESSABLE_ENTITY, "SAVED_LINK_002", "위험으로 분류된 URL은 저장할 수 없습니다."),
+    SAVED_LINK_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "SAVED_LINK_003", "유효하지 않은 커서 값입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

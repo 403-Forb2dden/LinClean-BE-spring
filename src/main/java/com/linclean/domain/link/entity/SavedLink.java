@@ -30,20 +30,11 @@ public class SavedLink extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(name = "original_url", nullable = false, length = 2048)
-    private String originalUrl;
-
-    @Column(name = "final_url", length = 2048)
-    private String finalUrl;
-
     @Column(name = "title", length = 500)
     private String title;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-
-    @Column(name = "site_name", length = 255)
-    private String siteName;
 
     @Column(name = "is_bookmarked", nullable = false)
     @Builder.Default

@@ -3,6 +3,7 @@ package com.linclean.domain.link.service;
 import com.linclean.domain.analysis.entity.Analysis;
 import com.linclean.domain.analysis.entity.AnalysisStatus;
 import com.linclean.domain.analysis.entity.Verdict;
+import com.linclean.domain.analysis.exception.AnalysisException;
 import com.linclean.domain.analysis.repository.AnalysisRepository;
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
@@ -15,8 +16,6 @@ import com.linclean.domain.link.entity.SavedLink;
 import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.link.repository.CategoryRepository;
 import com.linclean.domain.link.repository.SavedLinkRepository;
-import com.linclean.domain.member.entity.Member;
-import com.linclean.domain.member.repository.MemberRepository;
 import com.linclean.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -34,13 +33,12 @@ public class SavedLinkService {
     private final SavedLinkRepository savedLinkRepository;
     private final CategoryRepository categoryRepository;
     private final AnalysisRepository analysisRepository;
-    private final MemberRepository memberRepository;
 
     @Transactional
     public SavedLinkResponse createSavedLink(Long memberId, SavedLinkCreateRequest request) {
         Analysis analysis = analysisRepository.findById(request.analysisId())
                 .filter(a -> a.getMember().getId().equals(memberId))
-                .orElseThrow(() -> new SavedLinkException(ErrorCode.ANALYSIS_NOT_FOUND));
+                .orElseThrow(() -> new AnalysisException(ErrorCode.ANALYSIS_NOT_FOUND));
 
         if (analysis.getStatus() != AnalysisStatus.SUCCEEDED) {
             throw new SavedLinkException(ErrorCode.ANALYSIS_NOT_SUCCEEDED);
@@ -49,9 +47,6 @@ public class SavedLinkService {
             throw new SavedLinkException(ErrorCode.SAVED_LINK_FORBIDDEN_DANGER);
         }
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new SavedLinkException(ErrorCode.MEMBER_NOT_FOUND));
-
         Category category = null;
         if (request.categoryId() != null) {
             category = categoryRepository.findByIdAndMember_Id(request.categoryId(), memberId)
@@ -59,11 +54,9 @@ public class SavedLinkService {
         }
 
         SavedLink savedLink = SavedLink.builder()
-                .member(member)
+                .member(analysis.getMember())
                 .analysis(analysis)
                 .category(category)
-                .originalUrl(analysis.getOriginalUrl())
-                .finalUrl(analysis.getFinalUrl())
                 .title(request.title())
                 .description(request.description())
                 .build();
@@ -123,8 +116,12 @@ public class SavedLinkService {
 
     private Long decodeCursor(String cursor) {
         if (cursor == null || cursor.isBlank()) return null;
-        return Long.parseLong(
-                new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8));
+        try {
+            return Long.parseLong(
+                    new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8));
+        } catch (IllegalArgumentException e) {
+            throw new SavedLinkException(ErrorCode.SAVED_LINK_INVALID_CURSOR);
+        }
     }
 
     private String encodeCursor(Long id) {

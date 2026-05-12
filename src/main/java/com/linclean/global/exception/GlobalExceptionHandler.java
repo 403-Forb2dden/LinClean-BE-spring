@@ -3,6 +3,7 @@ package com.linclean.global.exception;
 import com.linclean.domain.analysis.exception.AnalysisException;
 import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.terms.exception.TermsException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +29,16 @@ public class GlobalExceptionHandler {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .findFirst()
                 .map(fe -> fe.getDefaultMessage())
+                .orElse("요청 파라미터가 유효하지 않습니다.");
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("VALIDATION_ERROR", message, Instant.now()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException e) {
+        String message = e.getConstraintViolations().stream()
+                .findFirst()
+                .map(cv -> cv.getMessage())
                 .orElse("요청 파라미터가 유효하지 않습니다.");
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse("VALIDATION_ERROR", message, Instant.now()));

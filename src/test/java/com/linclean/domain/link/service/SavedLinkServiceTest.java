@@ -12,11 +12,11 @@ import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
 import com.linclean.domain.link.entity.Category;
 import com.linclean.domain.link.entity.SavedLink;
+import com.linclean.domain.analysis.exception.AnalysisException;
 import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.link.repository.CategoryRepository;
 import com.linclean.domain.link.repository.SavedLinkRepository;
 import com.linclean.domain.member.entity.Member;
-import com.linclean.domain.member.repository.MemberRepository;
 import com.linclean.global.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -46,7 +46,6 @@ class SavedLinkServiceTest {
     @Mock SavedLinkRepository savedLinkRepository;
     @Mock CategoryRepository categoryRepository;
     @Mock AnalysisRepository analysisRepository;
-    @Mock MemberRepository memberRepository;
     @InjectMocks SavedLinkService savedLinkService;
 
     private Member member;
@@ -77,7 +76,6 @@ class SavedLinkServiceTest {
         @Test
         void success_withoutCategory() {
             given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
-            given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
             SavedLink saved = makeSavedLink(10L, null);
             given(savedLinkRepository.save(any(SavedLink.class))).willReturn(saved);
@@ -94,7 +92,6 @@ class SavedLinkServiceTest {
         void success_withCategory() {
             Category category = makeCategory(5L);
             given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
-            given(memberRepository.findById(1L)).willReturn(Optional.of(member));
             given(categoryRepository.findByIdAndMember_Id(5L, 1L)).willReturn(Optional.of(category));
 
             SavedLink saved = makeSavedLink(11L, category);
@@ -112,8 +109,8 @@ class SavedLinkServiceTest {
 
             assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
                     new SavedLinkCreateRequest(analysisUuid, null, null, null)))
-                    .isInstanceOf(SavedLinkException.class)
-                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                    .isInstanceOf(AnalysisException.class)
+                    .satisfies(ex -> assertThat(((AnalysisException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.ANALYSIS_NOT_FOUND));
         }
 
@@ -126,8 +123,8 @@ class SavedLinkServiceTest {
 
             assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
                     new SavedLinkCreateRequest(analysisUuid, null, null, null)))
-                    .isInstanceOf(SavedLinkException.class)
-                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                    .isInstanceOf(AnalysisException.class)
+                    .satisfies(ex -> assertThat(((AnalysisException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.ANALYSIS_NOT_FOUND));
         }
 
@@ -158,7 +155,6 @@ class SavedLinkServiceTest {
         @Test
         void categoryNotFound_throws() {
             given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
-            given(memberRepository.findById(1L)).willReturn(Optional.of(member));
             given(categoryRepository.findByIdAndMember_Id(99L, 1L)).willReturn(Optional.empty());
 
             assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
@@ -328,8 +324,6 @@ class SavedLinkServiceTest {
                 .member(member)
                 .analysis(succeededSafeAnalysis)
                 .category(category)
-                .originalUrl("https://example.com")
-                .finalUrl("https://example.com/final")
                 .title("제목")
                 .description("설명")
                 .build();
