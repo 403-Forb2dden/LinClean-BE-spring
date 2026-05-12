@@ -7,6 +7,7 @@ import com.linclean.domain.analysis.exception.AnalysisException;
 import com.linclean.domain.analysis.repository.AnalysisRepository;
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
+import com.linclean.domain.link.dto.request.SavedLinkListQuery;
 import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
@@ -65,12 +66,12 @@ public class SavedLinkService {
     }
 
     @Transactional(readOnly = true)
-    public SavedLinkListResponse getSavedLinks(
-            Long memberId, Long categoryId, Boolean bookmarked, String cursor, int size) {
+    public SavedLinkListResponse getSavedLinks(Long memberId, SavedLinkListQuery query) {
 
-        Long cursorId = decodeCursor(cursor);
+        Long cursorId = decodeCursor(query.cursor());
+        int size = query.size();
         List<SavedLink> rows = savedLinkRepository.findByFilters(
-                memberId, categoryId, bookmarked, cursorId,
+                memberId, query.categoryId(), query.bookmarked(), cursorId,
                 PageRequest.of(0, size + 1));
 
         boolean hasNext = rows.size() > size;

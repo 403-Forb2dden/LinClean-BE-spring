@@ -6,6 +6,7 @@ import com.linclean.domain.analysis.entity.Verdict;
 import com.linclean.domain.analysis.repository.AnalysisRepository;
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
+import com.linclean.domain.link.dto.request.SavedLinkListQuery;
 import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
@@ -175,7 +176,8 @@ class SavedLinkServiceTest {
             given(savedLinkRepository.findByFilters(eq(1L), eq(null), eq(null), eq(null), any(Pageable.class)))
                     .willReturn(List.of(makeSavedLink(10L, null)));
 
-            SavedLinkListResponse response = savedLinkService.getSavedLinks(1L, null, null, null, 20);
+            SavedLinkListResponse response = savedLinkService.getSavedLinks(1L,
+                    new SavedLinkListQuery(null, null, null, 20));
 
             assertThat(response.items()).hasSize(1);
             assertThat(response.hasNext()).isFalse();
@@ -191,7 +193,8 @@ class SavedLinkServiceTest {
             given(savedLinkRepository.findByFilters(eq(1L), eq(null), eq(null), eq(null), any(Pageable.class)))
                     .willReturn(rows);
 
-            SavedLinkListResponse response = savedLinkService.getSavedLinks(1L, null, null, null, 2);
+            SavedLinkListResponse response = savedLinkService.getSavedLinks(1L,
+                    new SavedLinkListQuery(null, null, null, 2));
 
             assertThat(response.items()).hasSize(2);
             assertThat(response.hasNext()).isTrue();
@@ -205,10 +208,17 @@ class SavedLinkServiceTest {
             given(savedLinkRepository.findByFilters(eq(1L), eq(null), eq(null), eq(50L), any(Pageable.class)))
                     .willReturn(List.of());
 
-            SavedLinkListResponse response = savedLinkService.getSavedLinks(1L, null, null, cursor, 20);
+            SavedLinkListResponse response = savedLinkService.getSavedLinks(1L,
+                    new SavedLinkListQuery(null, null, cursor, 20));
 
             assertThat(response.items()).isEmpty();
             assertThat(response.hasNext()).isFalse();
+        }
+
+        @Test
+        void sizeDefaultsTo20WhenNull() {
+            SavedLinkListQuery query = new SavedLinkListQuery(null, null, null, null);
+            assertThat(query.size()).isEqualTo(20);
         }
     }
 

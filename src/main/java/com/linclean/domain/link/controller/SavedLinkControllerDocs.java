@@ -2,6 +2,7 @@ package com.linclean.domain.link.controller;
 
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
+import com.linclean.domain.link.dto.request.SavedLinkListQuery;
 import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
@@ -18,9 +19,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "SavedLink", description = "저장 링크 API")
 public interface SavedLinkControllerDocs {
@@ -42,14 +43,13 @@ public interface SavedLinkControllerDocs {
 
     @Operation(summary = "저장 링크 목록 조회", description = "커서 기반 페이지네이션으로 저장 링크를 조회합니다.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "유효하지 않은 쿼리 파라미터",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     ResponseEntity<ApiResponse<SavedLinkListResponse>> getSavedLinks(
             @AuthenticationPrincipal MemberPrincipal principal,
-            @Parameter(description = "카테고리 ID 필터") @RequestParam(required = false) Long categoryId,
-            @Parameter(description = "북마크 여부 필터") @RequestParam(required = false) Boolean bookmarked,
-            @Parameter(description = "커서 (Base64URL)") @RequestParam(required = false) String cursor,
-            @Parameter(description = "페이지 크기 (기본 20)") @RequestParam(defaultValue = "20") int size
+            @Parameter(description = "조회 조건") @Valid @ModelAttribute SavedLinkListQuery query
     );
 
     @Operation(summary = "저장 링크 삭제", description = "저장 링크를 삭제합니다.")
@@ -83,6 +83,6 @@ public interface SavedLinkControllerDocs {
     ResponseEntity<ApiResponse<CategoryUpdateResponse>> updateCategory(
             @AuthenticationPrincipal MemberPrincipal principal,
             @Parameter(description = "저장 링크 ID") @PathVariable Long id,
-            @RequestBody CategoryUpdateRequest request
+            @Valid @RequestBody CategoryUpdateRequest request
     );
 }
