@@ -42,7 +42,7 @@ public class SavedLinkService {
                 .orElseThrow(() -> new AnalysisException(ErrorCode.ANALYSIS_NOT_FOUND));
 
         if (analysis.getStatus() != AnalysisStatus.SUCCEEDED) {
-            throw new SavedLinkException(ErrorCode.ANALYSIS_NOT_SUCCEEDED);
+            throw new AnalysisException(ErrorCode.ANALYSIS_NOT_SUCCEEDED);
         }
         if (analysis.getVerdict() == Verdict.DANGER) {
             throw new SavedLinkException(ErrorCode.SAVED_LINK_FORBIDDEN_DANGER);

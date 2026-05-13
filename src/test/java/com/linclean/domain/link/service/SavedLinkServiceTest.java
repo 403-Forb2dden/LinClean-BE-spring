@@ -136,8 +136,8 @@ class SavedLinkServiceTest {
 
             assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
                     new SavedLinkCreateRequest(analysisUuid, null, null, null)))
-                    .isInstanceOf(SavedLinkException.class)
-                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                    .isInstanceOf(AnalysisException.class)
+                    .satisfies(ex -> assertThat(((AnalysisException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.ANALYSIS_NOT_SUCCEEDED));
         }
 

@@ -140,7 +140,7 @@ class SavedLinkControllerTest {
     @Test
     void createSavedLink_analysisNotSucceeded_returns422() throws Exception {
         given(savedLinkService.createSavedLink(eq(1L), any()))
-                .willThrow(new SavedLinkException(ErrorCode.ANALYSIS_NOT_SUCCEEDED));
+                .willThrow(new AnalysisException(ErrorCode.ANALYSIS_NOT_SUCCEEDED));
 
         mockMvc.perform(post("/api/v1/saved-links")
                         .with(authentication(AUTH))
