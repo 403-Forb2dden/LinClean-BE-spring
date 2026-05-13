@@ -63,11 +63,11 @@ public class SavedLinkController implements SavedLinkControllerDocs {
         return ResponseEntity.ok(ApiResponse.of(savedLinkService.toggleBookmark(principal.memberId(), id)));
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/category")
     public ResponseEntity<ApiResponse<CategoryUpdateResponse>> updateCategory(
             @AuthenticationPrincipal MemberPrincipal principal,
             @PathVariable Long id,
-            @Valid @RequestBody CategoryUpdateRequest request) {
+            @RequestBody CategoryUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.of(savedLinkService.updateCategory(principal.memberId(), id, request)));
     }
 }

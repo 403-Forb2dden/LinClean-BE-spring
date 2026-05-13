@@ -85,6 +85,6 @@ public interface SavedLinkControllerDocs {
     ResponseEntity<ApiResponse<CategoryUpdateResponse>> updateCategory(
             @AuthenticationPrincipal MemberPrincipal principal,
             @Parameter(description = "저장 링크 ID") @PathVariable Long id,
-            @Valid @RequestBody CategoryUpdateRequest request
+            @RequestBody CategoryUpdateRequest request
     );
 }

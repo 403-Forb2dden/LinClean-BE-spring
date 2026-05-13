@@ -301,7 +301,7 @@ class SavedLinkControllerTest {
         given(savedLinkService.updateCategory(eq(1L), eq(10L), any()))
                 .willReturn(new CategoryUpdateResponse(10L, 5L));
 
-        mockMvc.perform(patch("/api/v1/saved-links/10")
+        mockMvc.perform(patch("/api/v1/saved-links/10/category")
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"categoryId\": 5}"))
@@ -315,7 +315,7 @@ class SavedLinkControllerTest {
         given(savedLinkService.updateCategory(eq(1L), eq(10L), any()))
                 .willReturn(new CategoryUpdateResponse(10L, null));
 
-        mockMvc.perform(patch("/api/v1/saved-links/10")
+        mockMvc.perform(patch("/api/v1/saved-links/10/category")
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"categoryId\": null}"))
@@ -329,7 +329,7 @@ class SavedLinkControllerTest {
         given(savedLinkService.updateCategory(eq(1L), eq(99L), any()))
                 .willThrow(new SavedLinkException(ErrorCode.SAVED_LINK_NOT_FOUND));
 
-        mockMvc.perform(patch("/api/v1/saved-links/99")
+        mockMvc.perform(patch("/api/v1/saved-links/99/category")
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"categoryId\": 5}"))
@@ -342,7 +342,7 @@ class SavedLinkControllerTest {
         given(savedLinkService.updateCategory(eq(1L), eq(10L), any()))
                 .willThrow(new SavedLinkException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        mockMvc.perform(patch("/api/v1/saved-links/10")
+        mockMvc.perform(patch("/api/v1/saved-links/10/category")
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"categoryId\": 99}"))
