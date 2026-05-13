@@ -233,6 +233,15 @@ class SavedLinkServiceTest {
             SavedLinkListQuery query = new SavedLinkListQuery(null, null, null, null);
             assertThat(query.size()).isEqualTo(20);
         }
+
+        @Test
+        void invalidCursor_throws() {
+            assertThatThrownBy(() -> savedLinkService.getSavedLinks(1L,
+                    new SavedLinkListQuery(null, null, "!!!not-base64!!!", 20)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_INVALID_CURSOR));
+        }
     }
 
     // ── deleteSavedLink ───────────────────────────────────────────────────
@@ -275,6 +284,17 @@ class SavedLinkServiceTest {
 
             assertThat(response.id()).isEqualTo(10L);
             assertThat(response.isBookmarked()).isTrue();
+        }
+
+        @Test
+        void trueToFalse() {
+            SavedLink link = makeSavedLink(10L, null);
+            ReflectionTestUtils.setField(link, "isBookmarked", true);
+            given(savedLinkRepository.findByIdAndMember_Id(10L, 1L)).willReturn(Optional.of(link));
+
+            BookmarkToggleResponse response = savedLinkService.toggleBookmark(1L, 10L);
+
+            assertThat(response.isBookmarked()).isFalse();
         }
 
         @Test
