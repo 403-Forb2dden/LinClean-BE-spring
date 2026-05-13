@@ -11,5 +11,6 @@ public record SavedLinkCreateRequest(
         Long categoryId,
         @Size(max = 500, message = "제목은 500자 이하여야 합니다.")
         String title,
+        @Size(max = 5000, message = "설명은 5000자 이하여야 합니다.")
         String description
 ) {}

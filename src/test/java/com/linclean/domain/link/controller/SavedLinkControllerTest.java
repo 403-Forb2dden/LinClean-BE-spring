@@ -124,6 +124,18 @@ class SavedLinkControllerTest {
     }
 
     @Test
+    void createSavedLink_descriptionTooLong_returns400() throws Exception {
+        mockMvc.perform(post("/api/v1/saved-links")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "analysisId", ANALYSIS_UUID.toString(),
+                                "description", "a".repeat(5001)))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
     void createSavedLink_analysisNotFound_returns404() throws Exception {
         given(savedLinkService.createSavedLink(eq(1L), any()))
                 .willThrow(new AnalysisException(ErrorCode.ANALYSIS_NOT_FOUND));
