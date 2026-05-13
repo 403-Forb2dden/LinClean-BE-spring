@@ -164,6 +164,19 @@ class SavedLinkServiceTest {
                     .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.CATEGORY_NOT_FOUND));
         }
+
+        @Test
+        void duplicate_throws() {
+            given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
+            given(savedLinkRepository.existsByMember_IdAndAnalysis_AnalysisId(1L, analysisUuid))
+                    .willReturn(true);
+
+            assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
+                    new SavedLinkCreateRequest(analysisUuid, null, null, null)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_DUPLICATE));
+        }
     }
 
     // ── getSavedLinks ─────────────────────────────────────────────────────

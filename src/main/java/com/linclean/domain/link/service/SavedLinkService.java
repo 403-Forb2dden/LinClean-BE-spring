@@ -47,6 +47,9 @@ public class SavedLinkService {
         if (analysis.getVerdict() == Verdict.DANGER) {
             throw new SavedLinkException(ErrorCode.SAVED_LINK_FORBIDDEN_DANGER);
         }
+        if (savedLinkRepository.existsByMember_IdAndAnalysis_AnalysisId(memberId, request.analysisId())) {
+            throw new SavedLinkException(ErrorCode.SAVED_LINK_DUPLICATE);
+        }
 
         Category category = null;
         if (request.categoryId() != null) {

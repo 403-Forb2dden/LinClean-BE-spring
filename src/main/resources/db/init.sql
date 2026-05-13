@@ -164,7 +164,9 @@ CREATE TABLE saved_link (
                                     ON DELETE CASCADE,
                             CONSTRAINT fk_saved_link_category
                                 FOREIGN KEY (category_id) REFERENCES category (id)
-                                    ON DELETE SET NULL
+                                    ON DELETE SET NULL,
+                            CONSTRAINT uq_saved_link_member_analysis
+                                UNIQUE (member_id, analysis_id)
 );
 
 CREATE INDEX idx_saved_link_member_id ON saved_link (member_id);

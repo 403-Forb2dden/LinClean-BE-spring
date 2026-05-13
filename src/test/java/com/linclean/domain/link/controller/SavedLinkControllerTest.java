@@ -180,6 +180,20 @@ class SavedLinkControllerTest {
                 .andExpect(jsonPath("$.code").value(ErrorCode.CATEGORY_NOT_FOUND.getCode()));
     }
 
+    @Test
+    void createSavedLink_duplicate_returns409() throws Exception {
+        given(savedLinkService.createSavedLink(eq(1L), any()))
+                .willThrow(new SavedLinkException(ErrorCode.SAVED_LINK_DUPLICATE));
+
+        mockMvc.perform(post("/api/v1/saved-links")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "analysisId", ANALYSIS_UUID.toString()))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(ErrorCode.SAVED_LINK_DUPLICATE.getCode()));
+    }
+
     // ── GET /api/v1/saved-links ───────────────────────────────────────────
 
     @Test

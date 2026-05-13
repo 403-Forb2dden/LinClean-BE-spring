@@ -12,7 +12,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "saved_link")
+@Table(
+        name = "saved_link",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_saved_link_member_analysis",
+                columnNames = {"member_id", "analysis_id"})
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder

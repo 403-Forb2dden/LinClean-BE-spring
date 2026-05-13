@@ -33,6 +33,8 @@ public interface SavedLinkControllerDocs {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "분석 결과 또는 카테고리 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 저장된 분석",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "분석 미완료 또는 위험 URL",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })

@@ -13,6 +13,8 @@ public interface SavedLinkRepository extends JpaRepository<SavedLink, Long> {
 
     Optional<SavedLink> findByIdAndMember_Id(Long id, Long memberId);
 
+    boolean existsByMember_IdAndAnalysis_AnalysisId(Long memberId, java.util.UUID analysisId);
+
     @Query("""
             SELECT sl FROM SavedLink sl
             JOIN FETCH sl.analysis
