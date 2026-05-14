@@ -242,6 +242,28 @@ class SavedLinkServiceTest {
                     .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.SAVED_LINK_INVALID_CURSOR));
         }
+
+        @Test
+        void zeroCursor_throws() {
+            String cursor = Base64.getUrlEncoder().withoutPadding().encodeToString("0".getBytes());
+
+            assertThatThrownBy(() -> savedLinkService.getSavedLinks(1L,
+                    new SavedLinkListQuery(null, null, cursor, 20)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_INVALID_CURSOR));
+        }
+
+        @Test
+        void negativeCursor_throws() {
+            String cursor = Base64.getUrlEncoder().withoutPadding().encodeToString("-5".getBytes());
+
+            assertThatThrownBy(() -> savedLinkService.getSavedLinks(1L,
+                    new SavedLinkListQuery(null, null, cursor, 20)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_INVALID_CURSOR));
+        }
     }
 
     // ── deleteSavedLink ───────────────────────────────────────────────────

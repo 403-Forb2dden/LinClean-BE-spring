@@ -121,8 +121,12 @@ public class SavedLinkService {
     private Long decodeCursor(String cursor) {
         if (cursor == null || cursor.isBlank()) return null;
         try {
-            return Long.parseLong(
+            long id = Long.parseLong(
                     new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8));
+            if (id <= 0) {
+                throw new SavedLinkException(ErrorCode.SAVED_LINK_INVALID_CURSOR);
+            }
+            return id;
         } catch (IllegalArgumentException e) {
             throw new SavedLinkException(ErrorCode.SAVED_LINK_INVALID_CURSOR);
         }
