@@ -20,6 +20,7 @@ import com.linclean.domain.link.repository.SavedLinkRepository;
 import com.linclean.domain.member.entity.Member;
 import com.linclean.global.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,7 +80,7 @@ class SavedLinkServiceTest {
             given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
 
             SavedLink saved = makeSavedLink(10L, null);
-            given(savedLinkRepository.save(any(SavedLink.class))).willReturn(saved);
+            given(savedLinkRepository.saveAndFlush(any(SavedLink.class))).willReturn(saved);
 
             SavedLinkResponse response = savedLinkService.createSavedLink(1L,
                     new SavedLinkCreateRequest(analysisUuid, null, "제목", "설명"));
@@ -96,7 +97,7 @@ class SavedLinkServiceTest {
             given(categoryRepository.findByIdAndMember_Id(5L, 1L)).willReturn(Optional.of(category));
 
             SavedLink saved = makeSavedLink(11L, category);
-            given(savedLinkRepository.save(any(SavedLink.class))).willReturn(saved);
+            given(savedLinkRepository.saveAndFlush(any(SavedLink.class))).willReturn(saved);
 
             SavedLinkResponse response = savedLinkService.createSavedLink(1L,
                     new SavedLinkCreateRequest(analysisUuid, 5L, "제목", "설명"));
@@ -170,6 +171,19 @@ class SavedLinkServiceTest {
             given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
             given(savedLinkRepository.existsByMember_IdAndAnalysis_AnalysisId(1L, analysisUuid))
                     .willReturn(true);
+
+            assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
+                    new SavedLinkCreateRequest(analysisUuid, null, null, null)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_DUPLICATE));
+        }
+
+        @Test
+        void concurrentDuplicate_throwsDuplicate() {
+            given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
+            given(savedLinkRepository.saveAndFlush(any(SavedLink.class)))
+                    .willThrow(new DataIntegrityViolationException("unique constraint violation"));
 
             assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
                     new SavedLinkCreateRequest(analysisUuid, null, null, null)))

@@ -23,6 +23,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -65,7 +67,11 @@ public class SavedLinkService {
                 .description(request.description())
                 .build();
 
-        return SavedLinkResponse.from(savedLinkRepository.save(savedLink));
+        try {
+            return SavedLinkResponse.from(savedLinkRepository.saveAndFlush(savedLink));
+        } catch (DataIntegrityViolationException e) {
+            throw new SavedLinkException(ErrorCode.SAVED_LINK_DUPLICATE);
+        }
     }
 
     @Transactional(readOnly = true)
