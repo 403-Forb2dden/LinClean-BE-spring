@@ -1,6 +1,7 @@
 package com.linclean.global.exception;
 
 import com.linclean.domain.analysis.exception.AnalysisException;
+import com.linclean.domain.notice.exception.NoticeException;
 import com.linclean.domain.terms.exception.TermsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TermsException.class)
     public ResponseEntity<ErrorResponse> handleTerms(TermsException e) {
         log.debug("약관 도메인 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(NoticeException.class)
+    public ResponseEntity<ErrorResponse> handleNotice(NoticeException e) {
+        log.debug("공지사항 도메인 오류: {}", e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ErrorResponse.of(e.getErrorCode()));
     }
