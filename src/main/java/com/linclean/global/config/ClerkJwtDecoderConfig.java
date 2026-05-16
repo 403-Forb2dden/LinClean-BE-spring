@@ -13,10 +13,13 @@ public class ClerkJwtDecoderConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwksUri;
 
+    @Value("${clerk.issuer}")
+    private String issuer;
+
     @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUri).build();
-        decoder.setJwtValidator(JwtValidators.createDefault());
+        decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
         return decoder;
     }
 }
