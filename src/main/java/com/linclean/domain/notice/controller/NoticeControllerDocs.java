@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +27,7 @@ public interface NoticeControllerDocs {
     })
     ResponseEntity<ApiResponse<NoticeCursorPageResponse>> getNotices(
             @Parameter(description = "페이지네이션 커서 (첫 페이지는 생략)") @RequestParam(required = false) String cursor,
-            @Parameter(description = "페이지 크기 (기본 20, 최대 50)") @RequestParam(defaultValue = "20") int size
+            @Parameter(description = "페이지 크기 (기본 20, 최대 50)") @Min(1) @Max(50) @RequestParam(defaultValue = "20") int size
     );
 
     @Operation(summary = "공지사항 상세 조회", description = "공지사항 ID로 본문을 포함한 상세 정보를 조회합니다.")
