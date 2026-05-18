@@ -37,8 +37,7 @@ spring:
           jwk-set-uri: ${CLERK_JWKS_URI}
 
 clerk:
-  allowed-azp: ${CLERK_ALLOWED_AZP}
-
+  issuer: ${CLERK_ISSUER}
 
 server:
   port: ${API_PORT}
