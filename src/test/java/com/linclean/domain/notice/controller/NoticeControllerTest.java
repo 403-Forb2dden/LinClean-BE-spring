@@ -105,4 +105,10 @@ class NoticeControllerTest {
         mockMvc.perform(get("/api/v1/notices").param("size", "-1"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void getNotices_sizeOverMax_returns400() throws Exception {
+        mockMvc.perform(get("/api/v1/notices").param("size", "51"))
+                .andExpect(status().isBadRequest());
+    }
 }

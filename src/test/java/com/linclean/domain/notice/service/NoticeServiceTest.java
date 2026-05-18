@@ -91,6 +91,18 @@ class NoticeServiceTest {
                         .isEqualTo(ErrorCode.NOTICE_INVALID_CURSOR));
     }
 
+    @Test
+    void getNotices_withTamperedPinnedFlag_throwsNoticeException() {
+        Instant createdAt = Instant.parse("2026-04-15T09:00:00Z");
+        String cursor = Base64.getUrlEncoder()
+                .encodeToString(("5," + createdAt + ",2").getBytes(StandardCharsets.UTF_8));
+
+        assertThatThrownBy(() -> noticeService.getNotices(cursor, 20))
+                .isInstanceOf(NoticeException.class)
+                .satisfies(ex -> assertThat(((NoticeException) ex).getErrorCode())
+                        .isEqualTo(ErrorCode.NOTICE_INVALID_CURSOR));
+    }
+
     // ── 상세 조회 ──────────────────────────────────────────────
 
     @Test
