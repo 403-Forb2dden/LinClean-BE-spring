@@ -55,6 +55,7 @@ public class NoticeService {
             if (parts.length != 3) throw new IllegalArgumentException();
             Long lastId = Long.parseLong(parts[0]);
             Instant lastCreatedAt = Instant.parse(parts[1]);
+            if (!"0".equals(parts[2]) && !"1".equals(parts[2])) throw new IllegalArgumentException();
             boolean lastIsPinned = "1".equals(parts[2]);
             return noticeRepository.findNextPage(lastIsPinned, lastCreatedAt, lastId, limit);
         } catch (NoticeException e) {

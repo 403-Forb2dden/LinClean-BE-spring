@@ -5,8 +5,10 @@ import com.linclean.domain.notice.dto.NoticeDetailResponse;
 import com.linclean.domain.notice.service.NoticeService;
 import com.linclean.global.web.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/notices")
@@ -20,8 +22,10 @@ public class NoticeController implements NoticeControllerDocs {
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") int size
     ) {
-        int clampedSize = Math.max(1, Math.min(size, 50));
-        return ResponseEntity.ok(ApiResponse.of(noticeService.getNotices(cursor, clampedSize)));
+        if (size < 1 || size > 50) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "size는 1 이상 50 이하여야 합니다.");
+        }
+        return ResponseEntity.ok(ApiResponse.of(noticeService.getNotices(cursor, size)));
     }
 
     @GetMapping("/{id}")

@@ -93,4 +93,16 @@ class NoticeControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("NOTICE_001"));
     }
+
+    @Test
+    void getNotices_sizeZero_returns400() throws Exception {
+        mockMvc.perform(get("/api/v1/notices").param("size", "0"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getNotices_negativeSize_returns400() throws Exception {
+        mockMvc.perform(get("/api/v1/notices").param("size", "-1"))
+                .andExpect(status().isBadRequest());
+    }
 }
