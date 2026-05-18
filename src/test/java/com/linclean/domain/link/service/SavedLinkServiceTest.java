@@ -180,16 +180,42 @@ class SavedLinkServiceTest {
         }
 
         @Test
+        void titleDuplicate_throws() {
+            given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
+            given(savedLinkRepository.existsByMember_IdAndAnalysis_AnalysisId(1L, analysisUuid)).willReturn(false);
+            given(savedLinkRepository.existsByMember_IdAndTitle(1L, "제목")).willReturn(true);
+
+            assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
+                    new SavedLinkCreateRequest(analysisUuid, null, "제목", null)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
+        }
+
+        @Test
         void concurrentDuplicate_throwsDuplicate() {
             given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
             given(savedLinkRepository.saveAndFlush(any(SavedLink.class)))
-                    .willThrow(new DataIntegrityViolationException("unique constraint violation"));
+                    .willThrow(new DataIntegrityViolationException("uq_saved_link_member_analysis"));
 
             assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
-                    new SavedLinkCreateRequest(analysisUuid, null, null, null)))
+                    new SavedLinkCreateRequest(analysisUuid, null, "제목", null)))
                     .isInstanceOf(SavedLinkException.class)
                     .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.SAVED_LINK_DUPLICATE));
+        }
+
+        @Test
+        void concurrentTitleDuplicate_throwsTitleDuplicate() {
+            given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
+            given(savedLinkRepository.saveAndFlush(any(SavedLink.class)))
+                    .willThrow(new DataIntegrityViolationException("uq_saved_link_member_title"));
+
+            assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
+                    new SavedLinkCreateRequest(analysisUuid, null, "제목", null)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
         }
     }
 

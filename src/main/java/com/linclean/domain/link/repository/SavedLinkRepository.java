@@ -15,6 +15,8 @@ public interface SavedLinkRepository extends JpaRepository<SavedLink, Long> {
 
     boolean existsByMember_IdAndAnalysis_AnalysisId(Long memberId, java.util.UUID analysisId);
 
+    boolean existsByMember_IdAndTitle(Long memberId, String title);
+
     @Query("""
             SELECT sl FROM SavedLink sl
             JOIN FETCH sl.analysis

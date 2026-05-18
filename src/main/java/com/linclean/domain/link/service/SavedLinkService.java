@@ -52,6 +52,9 @@ public class SavedLinkService {
         if (savedLinkRepository.existsByMember_IdAndAnalysis_AnalysisId(memberId, request.analysisId())) {
             throw new SavedLinkException(ErrorCode.SAVED_LINK_DUPLICATE);
         }
+        if (savedLinkRepository.existsByMember_IdAndTitle(memberId, request.title())) {
+            throw new SavedLinkException(ErrorCode.SAVED_LINK_TITLE_DUPLICATE);
+        }
 
         Category category = null;
         if (request.categoryId() != null) {
@@ -70,6 +73,10 @@ public class SavedLinkService {
         try {
             return SavedLinkResponse.from(savedLinkRepository.saveAndFlush(savedLink));
         } catch (DataIntegrityViolationException e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if (msg.contains("uq_saved_link_member_title")) {
+                throw new SavedLinkException(ErrorCode.SAVED_LINK_TITLE_DUPLICATE);
+            }
             throw new SavedLinkException(ErrorCode.SAVED_LINK_DUPLICATE);
         }
     }
