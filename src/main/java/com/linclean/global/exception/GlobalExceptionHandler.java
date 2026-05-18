@@ -1,6 +1,7 @@
 package com.linclean.global.exception;
 
 import com.linclean.domain.analysis.exception.AnalysisException;
+import com.linclean.domain.link.exception.CategoryException;
 import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.terms.exception.TermsException;
 import jakarta.validation.ConstraintViolationException;
@@ -47,6 +48,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SavedLinkException.class)
     public ResponseEntity<ErrorResponse> handleSavedLink(SavedLinkException e) {
         log.debug("저장 링크 도메인 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(CategoryException.class)
+    public ResponseEntity<ErrorResponse> handleCategory(CategoryException e) {
+        log.debug("카테고리 도메인 오류: {}", e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ErrorResponse.of(e.getErrorCode()));
     }
