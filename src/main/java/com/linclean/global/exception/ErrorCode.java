@@ -18,7 +18,8 @@ public enum ErrorCode {
     ANALYSIS_FORBIDDEN(HttpStatus.FORBIDDEN, "ANALYSIS_002", "본인의 분석 결과만 조회할 수 있습니다."),
     TERMS_NOT_FOUND(HttpStatus.NOT_FOUND, "TERMS_001", "약관 정보를 찾을 수 없습니다."),
 
-    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE_001", "공지사항을 찾을 수 없습니다.");
+    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE_001", "공지사항을 찾을 수 없습니다."),
+    NOTICE_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "NOTICE_002", "유효하지 않은 커서입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

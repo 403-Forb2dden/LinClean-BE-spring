@@ -73,7 +73,7 @@ class NoticeServiceTest {
     void getNotices_withValidCursor_callsNextPage() {
         Instant createdAt = Instant.parse("2026-04-15T09:00:00Z");
         String cursor = Base64.getUrlEncoder()
-                .encodeToString(("5," + createdAt.toEpochMilli() + ",1").getBytes(StandardCharsets.UTF_8));
+                .encodeToString(("5," + createdAt.toString() + ",1").getBytes(StandardCharsets.UTF_8));
         given(noticeRepository.findNextPage(eq(true), eq(createdAt), eq(5L), eq(21)))
                 .willReturn(List.of());
 
@@ -81,6 +81,14 @@ class NoticeServiceTest {
 
         verify(noticeRepository).findNextPage(true, createdAt, 5L, 21);
         assertThat(response.hasNext()).isFalse();
+    }
+
+    @Test
+    void getNotices_withInvalidCursor_throwsNoticeException() {
+        assertThatThrownBy(() -> noticeService.getNotices("!!!invalid!!!", 20))
+                .isInstanceOf(NoticeException.class)
+                .satisfies(ex -> assertThat(((NoticeException) ex).getErrorCode())
+                        .isEqualTo(ErrorCode.NOTICE_INVALID_CURSOR));
     }
 
     // ── 상세 조회 ──────────────────────────────────────────────

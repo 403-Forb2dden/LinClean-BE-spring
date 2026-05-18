@@ -20,7 +20,7 @@ public class NoticeController implements NoticeControllerDocs {
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") int size
     ) {
-        int clampedSize = Math.min(size, 50);
+        int clampedSize = Math.max(1, Math.min(size, 50));
         return ResponseEntity.ok(ApiResponse.of(noticeService.getNotices(cursor, clampedSize)));
     }
 

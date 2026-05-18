@@ -49,16 +49,23 @@ public class NoticeService {
     }
 
     private List<Notice> fetchWithCursor(String cursor, int limit) {
-        String decoded = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8);
-        String[] parts = decoded.split(",");
-        Long lastId = Long.parseLong(parts[0]);
-        Instant lastCreatedAt = Instant.ofEpochMilli(Long.parseLong(parts[1]));
-        boolean lastIsPinned = "1".equals(parts[2]);
-        return noticeRepository.findNextPage(lastIsPinned, lastCreatedAt, lastId, limit);
+        try {
+            String decoded = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8);
+            String[] parts = decoded.split(",", 3);
+            if (parts.length != 3) throw new IllegalArgumentException();
+            Long lastId = Long.parseLong(parts[0]);
+            Instant lastCreatedAt = Instant.parse(parts[1]);
+            boolean lastIsPinned = "1".equals(parts[2]);
+            return noticeRepository.findNextPage(lastIsPinned, lastCreatedAt, lastId, limit);
+        } catch (NoticeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new NoticeException(ErrorCode.NOTICE_INVALID_CURSOR);
+        }
     }
 
     private String encodeCursor(Notice notice) {
-        String raw = notice.getId() + "," + notice.getCreatedAt().toEpochMilli() + "," + (notice.isPinned() ? "1" : "0");
+        String raw = notice.getId() + "," + notice.getCreatedAt().toString() + "," + (notice.isPinned() ? "1" : "0");
         return Base64.getUrlEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
     }
 }
