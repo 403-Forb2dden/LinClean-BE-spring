@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
@@ -60,7 +61,7 @@ class CategoryServiceTest {
             given(categoryRepository.existsByMember_IdAndName(1L, "업무")).willReturn(false);
             given(categoryRepository.countByMember_Id(1L)).willReturn(2L);
             Category saved = makeCategory(10L, "업무", 2);
-            given(categoryRepository.save(any(Category.class))).willReturn(saved);
+            given(categoryRepository.saveAndFlush(any(Category.class))).willReturn(saved);
 
             CategoryResponse response = categoryService.createCategory(1L,
                     new CategoryCreateRequest("업무", null));
@@ -77,7 +78,7 @@ class CategoryServiceTest {
             given(categoryRepository.existsByMember_IdAndName(1L, "업무")).willReturn(false);
             given(categoryRepository.countByMember_Id(1L)).willReturn(0L);
             Category saved = makeCategory(10L, "업무", 0);
-            given(categoryRepository.save(any(Category.class))).willReturn(saved);
+            given(categoryRepository.saveAndFlush(any(Category.class))).willReturn(saved);
 
             SavedLink link1 = makeSavedLink(1L);
             SavedLink link2 = makeSavedLink(2L);
@@ -103,12 +104,44 @@ class CategoryServiceTest {
         }
 
         @Test
+        void concurrentDuplicateName_throwsDuplicate() {
+            given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+            given(categoryRepository.existsByMember_IdAndName(1L, "업무")).willReturn(false);
+            given(categoryRepository.countByMember_Id(1L)).willReturn(0L);
+            given(categoryRepository.saveAndFlush(any(Category.class)))
+                    .willThrow(new DataIntegrityViolationException("uq_category_member_name"));
+
+            assertThatThrownBy(() -> categoryService.createCategory(1L,
+                    new CategoryCreateRequest("업무", null)))
+                    .isInstanceOf(CategoryException.class)
+                    .satisfies(ex -> assertThat(((CategoryException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.CATEGORY_DUPLICATE_NAME));
+        }
+
+        @Test
+        void duplicateLinkIds_countsDistinct() {
+            given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+            given(categoryRepository.existsByMember_IdAndName(1L, "업무")).willReturn(false);
+            given(categoryRepository.countByMember_Id(1L)).willReturn(0L);
+            Category saved = makeCategory(10L, "업무", 0);
+            given(categoryRepository.saveAndFlush(any(Category.class))).willReturn(saved);
+
+            SavedLink link1 = makeSavedLink(1L);
+            given(savedLinkRepository.findByIdAndMember_Id(1L, 1L)).willReturn(Optional.of(link1));
+
+            CategoryResponse response = categoryService.createCategory(1L,
+                    new CategoryCreateRequest("업무", List.of(1L, 1L)));
+
+            assertThat(response.linkCount()).isEqualTo(1L);
+        }
+
+        @Test
         void linkNotFound_throws() {
             given(memberRepository.findById(1L)).willReturn(Optional.of(member));
             given(categoryRepository.existsByMember_IdAndName(1L, "업무")).willReturn(false);
             given(categoryRepository.countByMember_Id(1L)).willReturn(0L);
             Category saved = makeCategory(10L, "업무", 0);
-            given(categoryRepository.save(any(Category.class))).willReturn(saved);
+            given(categoryRepository.saveAndFlush(any(Category.class))).willReturn(saved);
             given(savedLinkRepository.findByIdAndMember_Id(99L, 1L)).willReturn(Optional.empty());
 
             assertThatThrownBy(() -> categoryService.createCategory(1L,
@@ -206,6 +239,17 @@ class CategoryServiceTest {
                     .isInstanceOf(CategoryException.class)
                     .satisfies(ex -> assertThat(((CategoryException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.CATEGORY_DUPLICATE_NAME));
+        }
+
+        @Test
+        void sameName_idempotent_succeeds() {
+            Category cat = makeCategory(5L, "업무", 0);
+            given(categoryRepository.findById(5L)).willReturn(Optional.of(cat));
+
+            CategoryRenameResponse response = categoryService.renameCategory(1L, 5L,
+                    new CategoryRenameRequest("업무"));
+
+            assertThat(response.name()).isEqualTo("업무");
         }
     }
 

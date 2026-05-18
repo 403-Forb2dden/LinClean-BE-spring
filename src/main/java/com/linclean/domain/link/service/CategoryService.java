@@ -15,6 +15,7 @@ import com.linclean.domain.member.entity.Member;
 import com.linclean.domain.member.repository.MemberRepository;
 import com.linclean.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,16 +48,22 @@ public class CategoryService {
                 .displayOrder(displayOrder)
                 .build();
 
-        Category saved = categoryRepository.save(category);
+        Category saved;
+        try {
+            saved = categoryRepository.saveAndFlush(category);
+        } catch (DataIntegrityViolationException e) {
+            throw new CategoryException(ErrorCode.CATEGORY_DUPLICATE_NAME);
+        }
 
         long linkCount = 0;
         if (request.linkIds() != null && !request.linkIds().isEmpty()) {
-            for (Long linkId : request.linkIds()) {
+            List<Long> distinctLinkIds = request.linkIds().stream().distinct().toList();
+            for (Long linkId : distinctLinkIds) {
                 SavedLink link = savedLinkRepository.findByIdAndMember_Id(linkId, memberId)
                         .orElseThrow(() -> new SavedLinkException(ErrorCode.SAVED_LINK_NOT_FOUND));
                 link.updateCategory(saved);
             }
-            linkCount = request.linkIds().size();
+            linkCount = distinctLinkIds.size();
         }
 
         return CategoryResponse.of(saved, linkCount);
@@ -94,7 +101,8 @@ public class CategoryService {
             throw new CategoryException(ErrorCode.CATEGORY_FORBIDDEN);
         }
 
-        if (categoryRepository.existsByMember_IdAndName(memberId, request.name())) {
+        if (!category.getName().equals(request.name()) &&
+                categoryRepository.existsByMember_IdAndName(memberId, request.name())) {
             throw new CategoryException(ErrorCode.CATEGORY_DUPLICATE_NAME);
         }
 
