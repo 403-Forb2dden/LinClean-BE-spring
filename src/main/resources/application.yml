@@ -38,6 +38,8 @@ spring:
 
 clerk:
   issuer: ${CLERK_ISSUER}
+  secret-key: ${CLERK_SECRET_KEY}
+  management-api-base-url: https://api.clerk.com
 
 server:
   port: ${API_PORT}
@@ -49,6 +51,11 @@ analysis-engine:
 
 internal:
   api-key: ${INTERNAL_API_KEY}
+
+member:
+  withdrawal:
+    retention-days: ${MEMBER_WITHDRAWAL_RETENTION_DAYS:30}
+    hard-delete-cron: ${MEMBER_WITHDRAWAL_HARD_DELETE_CRON:0 0 3 * * *}
 
 springdoc:
   swagger-ui:
