@@ -3,6 +3,7 @@ package com.linclean.domain.link.repository;
 import com.linclean.domain.link.entity.SavedLink;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -32,4 +33,11 @@ public interface SavedLinkRepository extends JpaRepository<SavedLink, Long> {
             @Param("cursor") Long cursor,
             Pageable pageable
     );
+
+    @Query("SELECT sl.category.id, COUNT(sl) FROM SavedLink sl WHERE sl.category.id IN :categoryIds GROUP BY sl.category.id")
+    List<Object[]> countByCategoryIds(@Param("categoryIds") List<Long> categoryIds);
+
+    @Modifying
+    @Query("UPDATE SavedLink sl SET sl.category = null WHERE sl.category.id = :categoryId")
+    void clearCategoryByCategoryId(@Param("categoryId") Long categoryId);
 }

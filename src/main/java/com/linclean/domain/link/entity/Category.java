@@ -27,4 +27,8 @@ public class Category extends BaseCreatedEntity {
     @Column(name = "display_order", nullable = false)
     @Builder.Default
     private int displayOrder = 0;
+
+    public void rename(String name) {
+        this.name = name;
+    }
 }
