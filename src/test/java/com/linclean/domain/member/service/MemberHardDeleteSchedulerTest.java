@@ -81,6 +81,21 @@ class MemberHardDeleteSchedulerTest {
 
         @Test
         @Transactional
+        void 정확히_보존기간_당일인_탈퇴회원은_삭제되지_않는다() {
+            em.createNativeQuery("""
+                    INSERT INTO member (public_id, clerk_id, created_at, updated_at, deleted_at)
+                    VALUES (gen_random_uuid(), 'boundary-clerk-id', now(), now(), now() - INTERVAL '30 days')
+                    """).executeUpdate();
+            em.flush();
+
+            scheduler.hardDeleteExpiredMembers();
+
+            Long count = count("boundary-clerk-id");
+            assertThat(count).isOne();
+        }
+
+        @Test
+        @Transactional
         void 활성_회원은_삭제되지_않는다() {
             em.createNativeQuery("""
                     INSERT INTO member (public_id, clerk_id, created_at, updated_at, deleted_at)

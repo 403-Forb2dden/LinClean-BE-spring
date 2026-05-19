@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +68,20 @@ class MemberSyncServiceTest {
 
             assertThat(result.getClerkId()).isEqualTo("new-clerk-id");
             verify(memberRepository).save(any());
+        }
+
+        @Test
+        void 동시_생성_충돌시_DataIntegrityViolationException을_잡고_재조회한_회원을_반환한다() {
+            Member savedMember = Member.builder().clerkId("race-clerk-id").build();
+            given(memberRepository.existsWithdrawnByClerkId("race-clerk-id")).willReturn(false);
+            given(memberRepository.findByClerkId("race-clerk-id"))
+                    .willReturn(Optional.empty())             // 1차 조회: 없음
+                    .willReturn(Optional.of(savedMember));   // 예외 후 재조회: 있음
+            given(memberRepository.save(any())).willThrow(new DataIntegrityViolationException("duplicate"));
+
+            Member result = memberSyncService.findOrCreate("race-clerk-id");
+
+            assertThat(result.getClerkId()).isEqualTo("race-clerk-id");
         }
     }
 }

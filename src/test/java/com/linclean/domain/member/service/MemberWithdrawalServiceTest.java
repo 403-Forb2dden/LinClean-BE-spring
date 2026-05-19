@@ -67,5 +67,19 @@ class MemberWithdrawalServiceTest {
 
             verify(memberRepository).delete(member);
         }
+
+        @Test
+        void 정상_탈퇴시_커밋_후_Clerk_계정_삭제가_호출된다() {
+            Member member = Member.builder().clerkId("test-clerk-id").build();
+            given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+            memberWithdrawalService.withdraw(1L);
+
+            // afterCommit 콜백 수동 트리거 — 실제 트랜잭션 커밋 시점을 재현
+            TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(sync -> sync.afterCommit());
+
+            verify(clerkManagementClient).deleteUser("test-clerk-id");
+        }
     }
 }
