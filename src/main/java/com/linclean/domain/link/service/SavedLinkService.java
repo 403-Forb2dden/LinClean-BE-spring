@@ -8,10 +8,12 @@ import com.linclean.domain.analysis.repository.AnalysisRepository;
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkListQuery;
+import com.linclean.domain.link.dto.request.SavedLinkTitleUpdateRequest;
 import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
+import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
 import com.linclean.domain.link.entity.Category;
 import com.linclean.domain.link.entity.SavedLink;
 import com.linclean.domain.link.exception.SavedLinkException;
@@ -129,6 +131,28 @@ public class SavedLinkService {
         link.updateCategory(category);
         Long resultCategoryId = link.getCategory() != null ? link.getCategory().getId() : null;
         return new CategoryUpdateResponse(link.getId(), resultCategoryId);
+    }
+
+    @Transactional
+    public SavedLinkTitleUpdateResponse updateTitle(Long memberId, Long id, SavedLinkTitleUpdateRequest request) {
+        SavedLink link = savedLinkRepository.findByIdAndMember_Id(id, memberId)
+                .orElseThrow(() -> new SavedLinkException(ErrorCode.SAVED_LINK_NOT_FOUND));
+
+        if (savedLinkRepository.existsByMember_IdAndTitleAndIdNot(memberId, request.title(), id)) {
+            throw new SavedLinkException(ErrorCode.SAVED_LINK_TITLE_DUPLICATE);
+        }
+
+        link.updateTitle(request.title());
+        try {
+            savedLinkRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if (msg.contains("uq_saved_link_member_title")) {
+                throw new SavedLinkException(ErrorCode.SAVED_LINK_TITLE_DUPLICATE);
+            }
+            throw e;
+        }
+        return new SavedLinkTitleUpdateResponse(link.getId(), link.getTitle());
     }
 
     private Long decodeCursor(String cursor) {
