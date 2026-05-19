@@ -55,4 +55,8 @@ public class SavedLink extends BaseEntity {
     public void updateCategory(Category category) {
         this.category = category;
     }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
 }

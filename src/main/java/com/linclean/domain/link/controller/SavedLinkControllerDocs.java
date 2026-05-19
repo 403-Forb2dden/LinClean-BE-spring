@@ -3,10 +3,12 @@ package com.linclean.domain.link.controller;
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkListQuery;
+import com.linclean.domain.link.dto.request.SavedLinkTitleUpdateRequest;
 import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
+import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
 import com.linclean.global.exception.ErrorResponse;
 import com.linclean.global.web.ApiResponse;
 import com.linclean.security.MemberPrincipal;
@@ -86,5 +88,19 @@ public interface SavedLinkControllerDocs {
             @AuthenticationPrincipal MemberPrincipal principal,
             @Parameter(description = "저장 링크 ID") @PathVariable Long id,
             @RequestBody CategoryUpdateRequest request
+    );
+
+    @Operation(summary = "제목 변경", description = "저장 링크의 제목을 변경합니다. 동일 회원 내 중복된 제목은 허용하지 않습니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "변경 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "저장 링크 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "중복된 제목",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<ApiResponse<SavedLinkTitleUpdateResponse>> updateTitle(
+            @AuthenticationPrincipal MemberPrincipal principal,
+            @Parameter(description = "저장 링크 ID") @PathVariable Long id,
+            @Valid @RequestBody SavedLinkTitleUpdateRequest request
     );
 }

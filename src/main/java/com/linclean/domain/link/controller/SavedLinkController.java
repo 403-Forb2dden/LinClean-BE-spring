@@ -3,10 +3,12 @@ package com.linclean.domain.link.controller;
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkListQuery;
+import com.linclean.domain.link.dto.request.SavedLinkTitleUpdateRequest;
 import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
+import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
 import com.linclean.domain.link.service.SavedLinkService;
 import com.linclean.global.web.ApiResponse;
 import com.linclean.security.MemberPrincipal;
@@ -69,5 +71,13 @@ public class SavedLinkController implements SavedLinkControllerDocs {
             @PathVariable Long id,
             @RequestBody CategoryUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.of(savedLinkService.updateCategory(principal.memberId(), id, request)));
+    }
+
+    @PatchMapping("/{id}/title")
+    public ResponseEntity<ApiResponse<SavedLinkTitleUpdateResponse>> updateTitle(
+            @AuthenticationPrincipal MemberPrincipal principal,
+            @PathVariable Long id,
+            @Valid @RequestBody SavedLinkTitleUpdateRequest request) {
+        return ResponseEntity.ok(ApiResponse.of(savedLinkService.updateTitle(principal.memberId(), id, request)));
     }
 }
