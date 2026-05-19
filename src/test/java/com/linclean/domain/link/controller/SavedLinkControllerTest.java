@@ -8,6 +8,7 @@ import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
+import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
 import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.link.service.SavedLinkService;
 import com.linclean.global.exception.ErrorCode;
@@ -391,5 +392,67 @@ class SavedLinkControllerTest {
                         .content("{\"categoryId\": 99}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(ErrorCode.CATEGORY_NOT_FOUND.getCode()));
+    }
+
+    // ── PATCH /api/v1/saved-links/{id}/title ─────────────────────────────
+
+    @Test
+    void updateTitle_returns200() throws Exception {
+        given(savedLinkService.updateTitle(eq(1L), eq(10L), any()))
+                .willReturn(new SavedLinkTitleUpdateResponse(10L, "새 제목"));
+
+        mockMvc.perform(patch("/api/v1/saved-links/10/title")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"새 제목\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(10))
+                .andExpect(jsonPath("$.data.title").value("새 제목"));
+    }
+
+    @Test
+    void updateTitle_blankTitle_returns400() throws Exception {
+        mockMvc.perform(patch("/api/v1/saved-links/10/title")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void updateTitle_titleTooLong_returns400() throws Exception {
+        mockMvc.perform(patch("/api/v1/saved-links/10/title")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("title", "a".repeat(501)))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void updateTitle_notFound_returns404() throws Exception {
+        given(savedLinkService.updateTitle(eq(1L), eq(99L), any()))
+                .willThrow(new SavedLinkException(ErrorCode.SAVED_LINK_NOT_FOUND));
+
+        mockMvc.perform(patch("/api/v1/saved-links/99/title")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"새 제목\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(ErrorCode.SAVED_LINK_NOT_FOUND.getCode()));
+    }
+
+    @Test
+    void updateTitle_titleDuplicate_returns409() throws Exception {
+        given(savedLinkService.updateTitle(eq(1L), eq(10L), any()))
+                .willThrow(new SavedLinkException(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
+
+        mockMvc.perform(patch("/api/v1/saved-links/10/title")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"중복 제목\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(ErrorCode.SAVED_LINK_TITLE_DUPLICATE.getCode()));
     }
 }
