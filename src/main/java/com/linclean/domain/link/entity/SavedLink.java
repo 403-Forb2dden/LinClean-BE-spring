@@ -12,7 +12,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "saved_link")
+@Table(
+        name = "saved_link",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_saved_link_member_analysis",
+                columnNames = {"member_id", "analysis_id"})
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -30,22 +35,21 @@ public class SavedLink extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(name = "original_url", nullable = false, length = 2048)
-    private String originalUrl;
-
-    @Column(name = "final_url", length = 2048)
-    private String finalUrl;
-
     @Column(name = "title", length = 500)
     private String title;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "site_name", length = 255)
-    private String siteName;
-
     @Column(name = "is_bookmarked", nullable = false)
     @Builder.Default
     private boolean isBookmarked = false;
+
+    public void toggleBookmark() {
+        this.isBookmarked = !this.isBookmarked;
+    }
+
+    public void updateCategory(Category category) {
+        this.category = category;
+    }
 }
