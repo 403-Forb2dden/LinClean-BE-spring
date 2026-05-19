@@ -14,9 +14,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
         name = "saved_link",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uq_saved_link_member_analysis",
-                columnNames = {"member_id", "analysis_id"})
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_saved_link_member_analysis",
+                        columnNames = {"member_id", "analysis_id"}),
+                @UniqueConstraint(name = "uq_saved_link_member_title",
+                        columnNames = {"member_id", "title"})
+        }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,7 +38,7 @@ public class SavedLink extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(name = "title", length = 500)
+    @Column(name = "title", length = 500, nullable = false)
     private String title;
 
     @Column(name = "description", columnDefinition = "TEXT")

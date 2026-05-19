@@ -26,6 +26,7 @@ public enum ErrorCode {
     SAVED_LINK_FORBIDDEN_DANGER(HttpStatus.UNPROCESSABLE_ENTITY, "SAVED_LINK_002", "위험으로 분류된 URL은 저장할 수 없습니다."),
     SAVED_LINK_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "SAVED_LINK_003", "유효하지 않은 커서 값입니다."),
     SAVED_LINK_DUPLICATE(HttpStatus.CONFLICT, "SAVED_LINK_004", "이미 저장된 분석입니다."),
+    SAVED_LINK_TITLE_DUPLICATE(HttpStatus.CONFLICT, "SAVED_LINK_005", "이미 동일한 제목의 링크가 저장되어 있습니다."),
 
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE_001", "공지사항을 찾을 수 없습니다."),
     NOTICE_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "NOTICE_002", "유효하지 않은 커서입니다.");

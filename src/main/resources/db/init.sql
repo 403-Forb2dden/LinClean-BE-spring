@@ -150,7 +150,7 @@ CREATE TABLE saved_link (
                             member_id       BIGINT          NOT NULL,
                             analysis_id     UUID            NOT NULL,
                             category_id     BIGINT,
-                            title           VARCHAR(500),
+                            title           VARCHAR(500)    NOT NULL,
                             description     TEXT,
                             is_bookmarked   BOOLEAN         NOT NULL DEFAULT FALSE,
                             created_at      TIMESTAMPTZ     NOT NULL DEFAULT now(),
@@ -166,7 +166,9 @@ CREATE TABLE saved_link (
                                 FOREIGN KEY (category_id) REFERENCES category (id)
                                     ON DELETE SET NULL,
                             CONSTRAINT uq_saved_link_member_analysis
-                                UNIQUE (member_id, analysis_id)
+                                UNIQUE (member_id, analysis_id),
+                            CONSTRAINT uq_saved_link_member_title
+                                UNIQUE (member_id, title)
 );
 
 CREATE INDEX idx_saved_link_member_id ON saved_link (member_id);

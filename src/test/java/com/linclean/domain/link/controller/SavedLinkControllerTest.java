@@ -112,6 +112,17 @@ class SavedLinkControllerTest {
     }
 
     @Test
+    void createSavedLink_missingTitle_returns400() throws Exception {
+        mockMvc.perform(post("/api/v1/saved-links")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "analysisId", ANALYSIS_UUID.toString()))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
     void createSavedLink_titleTooLong_returns400() throws Exception {
         mockMvc.perform(post("/api/v1/saved-links")
                         .with(authentication(AUTH))
@@ -144,7 +155,8 @@ class SavedLinkControllerTest {
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "analysisId", ANALYSIS_UUID.toString()))))
+                                "analysisId", ANALYSIS_UUID.toString(),
+                                "title", "제목"))))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(ErrorCode.ANALYSIS_NOT_FOUND.getCode()));
     }
@@ -158,7 +170,8 @@ class SavedLinkControllerTest {
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "analysisId", ANALYSIS_UUID.toString()))))
+                                "analysisId", ANALYSIS_UUID.toString(),
+                                "title", "제목"))))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value(ErrorCode.ANALYSIS_NOT_SUCCEEDED.getCode()));
     }
@@ -172,7 +185,8 @@ class SavedLinkControllerTest {
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "analysisId", ANALYSIS_UUID.toString()))))
+                                "analysisId", ANALYSIS_UUID.toString(),
+                                "title", "제목"))))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value(ErrorCode.SAVED_LINK_FORBIDDEN_DANGER.getCode()));
     }
@@ -187,6 +201,7 @@ class SavedLinkControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "analysisId", ANALYSIS_UUID.toString(),
+                                "title", "제목",
                                 "categoryId", 99))))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(ErrorCode.CATEGORY_NOT_FOUND.getCode()));
@@ -201,9 +216,25 @@ class SavedLinkControllerTest {
                         .with(authentication(AUTH))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "analysisId", ANALYSIS_UUID.toString()))))
+                                "analysisId", ANALYSIS_UUID.toString(),
+                                "title", "제목"))))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value(ErrorCode.SAVED_LINK_DUPLICATE.getCode()));
+    }
+
+    @Test
+    void createSavedLink_titleDuplicate_returns409() throws Exception {
+        given(savedLinkService.createSavedLink(eq(1L), any()))
+                .willThrow(new SavedLinkException(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
+
+        mockMvc.perform(post("/api/v1/saved-links")
+                        .with(authentication(AUTH))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "analysisId", ANALYSIS_UUID.toString(),
+                                "title", "제목"))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(ErrorCode.SAVED_LINK_TITLE_DUPLICATE.getCode()));
     }
 
     // ── GET /api/v1/saved-links ───────────────────────────────────────────
