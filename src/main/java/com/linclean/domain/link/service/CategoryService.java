@@ -107,6 +107,13 @@ public class CategoryService {
         }
 
         category.rename(request.name());
+
+        try {
+            categoryRepository.saveAndFlush(category);
+        } catch (DataIntegrityViolationException e) {
+            throw new CategoryException(ErrorCode.CATEGORY_DUPLICATE_NAME);
+        }
+
         return new CategoryRenameResponse(category.getId(), category.getName());
     }
 
