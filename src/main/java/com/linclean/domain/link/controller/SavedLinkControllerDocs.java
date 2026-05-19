@@ -93,6 +93,8 @@ public interface SavedLinkControllerDocs {
     @Operation(summary = "제목 변경", description = "저장 링크의 제목을 변경합니다. 동일 회원 내 중복된 제목은 허용하지 않습니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "변경 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "유효하지 않은 요청 (빈 제목, 500자 초과)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "저장 링크 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "중복된 제목",

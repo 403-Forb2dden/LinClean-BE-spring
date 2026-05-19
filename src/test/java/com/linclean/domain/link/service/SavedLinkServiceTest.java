@@ -477,6 +477,21 @@ class SavedLinkServiceTest {
                     .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
         }
+
+        @Test
+        void concurrentTitleDuplicate_throwsTitleDuplicate() {
+            SavedLink link = makeSavedLink(10L, null);
+            given(savedLinkRepository.findByIdAndMember_Id(10L, 1L)).willReturn(Optional.of(link));
+            given(savedLinkRepository.existsByMember_IdAndTitleAndIdNot(1L, "새 제목", 10L)).willReturn(false);
+            org.mockito.BDDMockito.willThrow(new DataIntegrityViolationException("uq_saved_link_member_title"))
+                    .given(savedLinkRepository).flush();
+
+            assertThatThrownBy(() -> savedLinkService.updateTitle(1L, 10L,
+                    new SavedLinkTitleUpdateRequest("새 제목")))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
+        }
     }
 
     // ── 헬퍼 ─────────────────────────────────────────────────────────────

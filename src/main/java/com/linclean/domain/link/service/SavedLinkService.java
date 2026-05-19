@@ -143,6 +143,15 @@ public class SavedLinkService {
         }
 
         link.updateTitle(request.title());
+        try {
+            savedLinkRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if (msg.contains("uq_saved_link_member_title")) {
+                throw new SavedLinkException(ErrorCode.SAVED_LINK_TITLE_DUPLICATE);
+            }
+            throw e;
+        }
         return new SavedLinkTitleUpdateResponse(link.getId(), link.getTitle());
     }
 
