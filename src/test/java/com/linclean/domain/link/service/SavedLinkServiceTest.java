@@ -7,10 +7,12 @@ import com.linclean.domain.analysis.repository.AnalysisRepository;
 import com.linclean.domain.link.dto.request.CategoryUpdateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkCreateRequest;
 import com.linclean.domain.link.dto.request.SavedLinkListQuery;
+import com.linclean.domain.link.dto.request.SavedLinkTitleUpdateRequest;
 import com.linclean.domain.link.dto.response.BookmarkToggleResponse;
 import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
+import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
 import com.linclean.domain.link.entity.Category;
 import com.linclean.domain.link.entity.SavedLink;
 import com.linclean.domain.analysis.exception.AnalysisException;
@@ -180,16 +182,42 @@ class SavedLinkServiceTest {
         }
 
         @Test
+        void titleDuplicate_throws() {
+            given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
+            given(savedLinkRepository.existsByMember_IdAndAnalysis_AnalysisId(1L, analysisUuid)).willReturn(false);
+            given(savedLinkRepository.existsByMember_IdAndTitle(1L, "제목")).willReturn(true);
+
+            assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
+                    new SavedLinkCreateRequest(analysisUuid, null, "제목", null)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
+        }
+
+        @Test
         void concurrentDuplicate_throwsDuplicate() {
             given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
             given(savedLinkRepository.saveAndFlush(any(SavedLink.class)))
-                    .willThrow(new DataIntegrityViolationException("unique constraint violation"));
+                    .willThrow(new DataIntegrityViolationException("uq_saved_link_member_analysis"));
 
             assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
-                    new SavedLinkCreateRequest(analysisUuid, null, null, null)))
+                    new SavedLinkCreateRequest(analysisUuid, null, "제목", null)))
                     .isInstanceOf(SavedLinkException.class)
                     .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.SAVED_LINK_DUPLICATE));
+        }
+
+        @Test
+        void concurrentTitleDuplicate_throwsTitleDuplicate() {
+            given(analysisRepository.findById(analysisUuid)).willReturn(Optional.of(succeededSafeAnalysis));
+            given(savedLinkRepository.saveAndFlush(any(SavedLink.class)))
+                    .willThrow(new DataIntegrityViolationException("uq_saved_link_member_title"));
+
+            assertThatThrownBy(() -> savedLinkService.createSavedLink(1L,
+                    new SavedLinkCreateRequest(analysisUuid, null, "제목", null)))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
         }
     }
 
@@ -393,6 +421,76 @@ class SavedLinkServiceTest {
                     .isInstanceOf(SavedLinkException.class)
                     .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.SAVED_LINK_NOT_FOUND));
+        }
+    }
+
+    // ── updateTitle ───────────────────────────────────────────────────────
+
+    @Nested
+    class UpdateTitle {
+
+        @Test
+        void success() {
+            SavedLink link = makeSavedLink(10L, null);
+            given(savedLinkRepository.findByIdAndMember_Id(10L, 1L)).willReturn(Optional.of(link));
+            given(savedLinkRepository.existsByMember_IdAndTitleAndIdNot(1L, "새 제목", 10L)).willReturn(false);
+
+            SavedLinkTitleUpdateResponse response = savedLinkService.updateTitle(1L, 10L,
+                    new SavedLinkTitleUpdateRequest("새 제목"));
+
+            assertThat(response.id()).isEqualTo(10L);
+            assertThat(response.title()).isEqualTo("새 제목");
+        }
+
+        @Test
+        void sameTitle_success() {
+            SavedLink link = makeSavedLink(10L, null);
+            given(savedLinkRepository.findByIdAndMember_Id(10L, 1L)).willReturn(Optional.of(link));
+            given(savedLinkRepository.existsByMember_IdAndTitleAndIdNot(1L, "제목", 10L)).willReturn(false);
+
+            SavedLinkTitleUpdateResponse response = savedLinkService.updateTitle(1L, 10L,
+                    new SavedLinkTitleUpdateRequest("제목"));
+
+            assertThat(response.title()).isEqualTo("제목");
+        }
+
+        @Test
+        void notFound_throws() {
+            given(savedLinkRepository.findByIdAndMember_Id(99L, 1L)).willReturn(Optional.empty());
+
+            assertThatThrownBy(() -> savedLinkService.updateTitle(1L, 99L,
+                    new SavedLinkTitleUpdateRequest("새 제목")))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_NOT_FOUND));
+        }
+
+        @Test
+        void titleDuplicate_throws() {
+            SavedLink link = makeSavedLink(10L, null);
+            given(savedLinkRepository.findByIdAndMember_Id(10L, 1L)).willReturn(Optional.of(link));
+            given(savedLinkRepository.existsByMember_IdAndTitleAndIdNot(1L, "중복 제목", 10L)).willReturn(true);
+
+            assertThatThrownBy(() -> savedLinkService.updateTitle(1L, 10L,
+                    new SavedLinkTitleUpdateRequest("중복 제목")))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
+        }
+
+        @Test
+        void concurrentTitleDuplicate_throwsTitleDuplicate() {
+            SavedLink link = makeSavedLink(10L, null);
+            given(savedLinkRepository.findByIdAndMember_Id(10L, 1L)).willReturn(Optional.of(link));
+            given(savedLinkRepository.existsByMember_IdAndTitleAndIdNot(1L, "새 제목", 10L)).willReturn(false);
+            org.mockito.BDDMockito.willThrow(new DataIntegrityViolationException("uq_saved_link_member_title"))
+                    .given(savedLinkRepository).flush();
+
+            assertThatThrownBy(() -> savedLinkService.updateTitle(1L, 10L,
+                    new SavedLinkTitleUpdateRequest("새 제목")))
+                    .isInstanceOf(SavedLinkException.class)
+                    .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
+                            .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
         }
     }
 

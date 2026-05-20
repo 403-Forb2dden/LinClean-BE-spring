@@ -22,11 +22,17 @@ public enum ErrorCode {
     TERMS_NOT_FOUND(HttpStatus.NOT_FOUND, "TERMS_001", "약관 정보를 찾을 수 없습니다."),
 
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY_001", "카테고리를 찾을 수 없습니다."),
+    CATEGORY_FORBIDDEN(HttpStatus.FORBIDDEN, "CATEGORY_002", "카테고리에 대한 권한이 없습니다."),
+    CATEGORY_DUPLICATE_NAME(HttpStatus.CONFLICT, "CATEGORY_003", "이미 존재하는 카테고리 이름입니다."),
 
     SAVED_LINK_NOT_FOUND(HttpStatus.NOT_FOUND, "SAVED_LINK_001", "저장된 링크를 찾을 수 없습니다."),
     SAVED_LINK_FORBIDDEN_DANGER(HttpStatus.UNPROCESSABLE_ENTITY, "SAVED_LINK_002", "위험으로 분류된 URL은 저장할 수 없습니다."),
     SAVED_LINK_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "SAVED_LINK_003", "유효하지 않은 커서 값입니다."),
-    SAVED_LINK_DUPLICATE(HttpStatus.CONFLICT, "SAVED_LINK_004", "이미 저장된 분석입니다.");
+    SAVED_LINK_DUPLICATE(HttpStatus.CONFLICT, "SAVED_LINK_004", "이미 저장된 분석입니다."),
+    SAVED_LINK_TITLE_DUPLICATE(HttpStatus.CONFLICT, "SAVED_LINK_005", "이미 동일한 제목의 링크가 저장되어 있습니다."),
+
+    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE_001", "공지사항을 찾을 수 없습니다."),
+    NOTICE_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "NOTICE_002", "유효하지 않은 커서입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

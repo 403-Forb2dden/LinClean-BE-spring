@@ -1,7 +1,9 @@
 package com.linclean.global.exception;
 
 import com.linclean.domain.analysis.exception.AnalysisException;
+import com.linclean.domain.link.exception.CategoryException;
 import com.linclean.domain.link.exception.SavedLinkException;
+import com.linclean.domain.notice.exception.NoticeException;
 import com.linclean.domain.member.exception.MemberException;
 import com.linclean.domain.terms.exception.TermsException;
 import jakarta.validation.ConstraintViolationException;
@@ -10,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 
@@ -59,11 +63,42 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(e.getErrorCode()));
     }
 
+    @ExceptionHandler(CategoryException.class)
+    public ResponseEntity<ErrorResponse> handleCategory(CategoryException e) {
+        log.debug("카테고리 도메인 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
     @ExceptionHandler(TermsException.class)
     public ResponseEntity<ErrorResponse> handleTerms(TermsException e) {
         log.debug("약관 도메인 오류: {}", e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(NoticeException.class)
+    public ResponseEntity<ErrorResponse> handleNotice(NoticeException e) {
+        log.debug("공지사항 도메인 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handleMethodValidation(HandlerMethodValidationException e) {
+        String message = e.getAllValidationResults().stream()
+                .flatMap(r -> r.getResolvableErrors().stream())
+                .findFirst()
+                .map(err -> err.getDefaultMessage())
+                .orElse("요청 파라미터가 유효하지 않습니다.");
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("VALIDATION_ERROR", message, Instant.now()));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException e) {
+        return ResponseEntity.status(e.getStatusCode())
+                .body(new ErrorResponse("VALIDATION_ERROR", e.getReason(), Instant.now()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
