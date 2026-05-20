@@ -1,6 +1,7 @@
 package com.linclean.security;
 
 import com.linclean.domain.member.entity.Member;
+import com.linclean.domain.member.exception.WithdrawnMemberException;
 import com.linclean.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,6 +16,9 @@ public class MemberSyncService {
 
     @Transactional
     public Member findOrCreate(String clerkId) {
+        if (memberRepository.existsWithdrawnByClerkId(clerkId)) {
+            throw new WithdrawnMemberException();
+        }
         try {
             return memberRepository.findByClerkId(clerkId)
                     .orElseGet(() -> memberRepository.save(

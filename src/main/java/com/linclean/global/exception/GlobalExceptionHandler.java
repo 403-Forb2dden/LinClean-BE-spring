@@ -4,6 +4,7 @@ import com.linclean.domain.analysis.exception.AnalysisException;
 import com.linclean.domain.link.exception.CategoryException;
 import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.notice.exception.NoticeException;
+import com.linclean.domain.member.exception.MemberException;
 import com.linclean.domain.terms.exception.TermsException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,13 @@ import java.time.Instant;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MemberException.class)
+    public ResponseEntity<ErrorResponse> handleMember(MemberException e) {
+        log.debug("회원 도메인 오류: {}", e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
 
     @ExceptionHandler(AnalysisException.class)
     public ResponseEntity<ErrorResponse> handleAnalysis(AnalysisException e) {
