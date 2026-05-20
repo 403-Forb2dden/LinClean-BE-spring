@@ -86,8 +86,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ErrorResponse> handleMethodValidation(HandlerMethodValidationException e) {
-        String message = e.getAllValidationResults().stream()
-                .flatMap(r -> r.getResolvableErrors().stream())
+        String message = e.getAllErrors().stream()
                 .findFirst()
                 .map(err -> err.getDefaultMessage())
                 .orElse("요청 파라미터가 유효하지 않습니다.");
