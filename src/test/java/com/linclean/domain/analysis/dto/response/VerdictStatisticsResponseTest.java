@@ -43,7 +43,9 @@ class VerdictStatisticsResponseTest {
 
             VerdictStatisticsResponse response = VerdictStatisticsResponse.from(hash);
 
+            assertThat(response.getSafe()).isEqualTo(10);
             assertThat(response.getCaution()).isEqualTo(0);
+            assertThat(response.getDanger()).isEqualTo(5);
         }
 
         @Test

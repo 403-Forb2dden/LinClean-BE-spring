@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -141,7 +142,7 @@ class VerdictStatisticsServiceTest {
             given(analysisRepository.countGroupByVerdict())
                     .willThrow(new RuntimeException("DB down"));
 
-            verdictStatisticsService.scheduledRefresh();
+            assertDoesNotThrow(() -> verdictStatisticsService.scheduledRefresh());
         }
 
         @Test
@@ -151,6 +152,7 @@ class VerdictStatisticsServiceTest {
             verdictStatisticsService.onApplicationReady();
 
             then(analysisRepository).should().countGroupByVerdict();
+            then(redisTemplate).should().executePipelined(any(RedisCallback.class));
         }
     }
 }
