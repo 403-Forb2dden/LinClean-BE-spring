@@ -2,6 +2,7 @@ package com.linclean.domain.analysis.controller;
 
 import com.linclean.domain.analysis.dto.request.AnalysisRequest;
 import com.linclean.domain.analysis.dto.response.AnalysisResponse;
+import com.linclean.domain.analysis.dto.response.VerdictStatisticsResponse;
 import com.linclean.global.exception.ErrorResponse;
 import com.linclean.global.web.ApiResponse;
 import com.linclean.security.MemberPrincipal;
@@ -21,6 +22,10 @@ import java.util.UUID;
 
 @Tag(name = "Analysis", description = "URL 분석 API")
 public interface AnalysisControllerDocs {
+
+    @Operation(summary = "verdict 통계 조회", description = "전체 분석 결과의 verdict(safe/caution/danger) 건수를 반환합니다. 인증 불필요.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
+    ResponseEntity<ApiResponse<VerdictStatisticsResponse>> getVerdictStatistics();
 
     @Operation(summary = "URL 분석 요청", description = "URL 안전성 분석을 요청합니다. 분석은 비동기로 수행됩니다.")
     @ApiResponses({
