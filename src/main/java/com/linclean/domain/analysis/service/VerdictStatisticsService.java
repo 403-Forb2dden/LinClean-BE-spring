@@ -74,12 +74,16 @@ public class VerdictStatisticsService {
         hashMap.put(Verdict.CAUTION.name(), String.valueOf(response.getCaution()));
         hashMap.put(Verdict.DANGER.name(), String.valueOf(response.getDanger()));
 
-        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            StringRedisConnection conn = (StringRedisConnection) connection;
-            conn.hMSet(CACHE_KEY, hashMap);
-            conn.expire(CACHE_KEY, CACHE_TTL.getSeconds());
-            return null;
-        });
+        try {
+            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+                StringRedisConnection conn = (StringRedisConnection) connection;
+                conn.hMSet(CACHE_KEY, hashMap);
+                conn.expire(CACHE_KEY, CACHE_TTL.getSeconds());
+                return null;
+            });
+        } catch (Exception e) {
+            log.warn("Redis 캐시 쓰기 실패, DB 결과 반환", e);
+        }
 
         return response;
     }
