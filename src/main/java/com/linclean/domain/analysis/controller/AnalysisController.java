@@ -2,7 +2,9 @@ package com.linclean.domain.analysis.controller;
 
 import com.linclean.domain.analysis.dto.request.AnalysisRequest;
 import com.linclean.domain.analysis.dto.response.AnalysisResponse;
+import com.linclean.domain.analysis.dto.response.VerdictStatisticsResponse;
 import com.linclean.domain.analysis.service.AnalysisService;
+import com.linclean.domain.analysis.service.VerdictStatisticsService;
 import com.linclean.global.web.ApiResponse;
 import com.linclean.security.MemberPrincipal;
 import jakarta.validation.Valid;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class AnalysisController implements AnalysisControllerDocs {
 
     private final AnalysisService analysisService;
+    private final VerdictStatisticsService verdictStatisticsService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<AnalysisResponse>> requestAnalysis(
@@ -32,6 +35,12 @@ public class AnalysisController implements AnalysisControllerDocs {
             @Valid @RequestBody AnalysisRequest request) {
         AnalysisResponse response = analysisService.requestAnalysis(principal.memberId(), request);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiResponse.of(response));
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ApiResponse<VerdictStatisticsResponse>> getVerdictStatistics() {
+        VerdictStatisticsResponse response = verdictStatisticsService.getVerdictStatistics();
+        return ResponseEntity.ok(ApiResponse.of(response));
     }
 
     @GetMapping("/{analysisId}")
