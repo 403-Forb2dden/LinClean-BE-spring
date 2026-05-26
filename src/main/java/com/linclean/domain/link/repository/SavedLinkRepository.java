@@ -16,6 +16,8 @@ public interface SavedLinkRepository extends JpaRepository<SavedLink, Long> {
 
     boolean existsByMember_IdAndAnalysis_AnalysisId(Long memberId, java.util.UUID analysisId);
 
+    boolean existsByMember_IdAndAnalysis_OriginalUrl(Long memberId, String url);
+
     boolean existsByMember_IdAndTitle(Long memberId, String title);
 
     boolean existsByMember_IdAndTitleAndIdNot(Long memberId, String title, Long id);
