@@ -9,6 +9,7 @@ import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
 import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
+import com.linclean.domain.link.dto.response.UrlCheckResponse;
 import com.linclean.domain.link.exception.SavedLinkException;
 import com.linclean.domain.link.service.SavedLinkService;
 import com.linclean.global.exception.ErrorCode;
@@ -392,6 +393,32 @@ class SavedLinkControllerTest {
                         .content("{\"categoryId\": 99}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(ErrorCode.CATEGORY_NOT_FOUND.getCode()));
+    }
+
+    // ── GET /api/v1/saved-links/check ────────────────────────────────────
+
+    @Test
+    void checkUrl_existingUrl_returns200WithTrue() throws Exception {
+        given(savedLinkService.checkUrl(1L, "https://example.com"))
+                .willReturn(new UrlCheckResponse(true));
+
+        mockMvc.perform(get("/api/v1/saved-links/check")
+                        .with(authentication(AUTH))
+                        .param("url", "https://example.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.exists").value(true));
+    }
+
+    @Test
+    void checkUrl_nonExistingUrl_returns200WithFalse() throws Exception {
+        given(savedLinkService.checkUrl(1L, "https://unknown.com"))
+                .willReturn(new UrlCheckResponse(false));
+
+        mockMvc.perform(get("/api/v1/saved-links/check")
+                        .with(authentication(AUTH))
+                        .param("url", "https://unknown.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.exists").value(false));
     }
 
     // ── PATCH /api/v1/saved-links/{id}/title ─────────────────────────────
