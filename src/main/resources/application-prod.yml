@@ -1,3 +1,15 @@
+server:
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  jpa:
+    properties:
+      hibernate:
+        show-sql: false
+    show-sql: false
+
 management:
   endpoint:
     health:
