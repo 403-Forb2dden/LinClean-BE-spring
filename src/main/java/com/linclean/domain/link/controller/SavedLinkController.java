@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,6 +80,9 @@ public class SavedLinkController implements SavedLinkControllerDocs {
     public ResponseEntity<ApiResponse<UrlCheckResponse>> checkUrl(
             @AuthenticationPrincipal MemberPrincipal principal,
             @RequestParam String url) {
+        if (url.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "url 파라미터가 비어 있습니다.");
+        }
         return ResponseEntity.ok(ApiResponse.of(savedLinkService.checkUrl(principal.memberId(), url)));
     }
 

@@ -421,6 +421,22 @@ class SavedLinkControllerTest {
                 .andExpect(jsonPath("$.data.exists").value(false));
     }
 
+    @Test
+    void checkUrl_missingUrlParam_returns400() throws Exception {
+        mockMvc.perform(get("/api/v1/saved-links/check")
+                        .with(authentication(AUTH)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void checkUrl_blankUrl_returns400() throws Exception {
+        mockMvc.perform(get("/api/v1/saved-links/check")
+                        .with(authentication(AUTH))
+                        .param("url", ""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
     // ── PATCH /api/v1/saved-links/{id}/title ─────────────────────────────
 
     @Test
