@@ -94,7 +94,11 @@ public interface SavedLinkControllerDocs {
 
     @Operation(summary = "URL 중복 체크", description = "입력한 URL이 이미 저장된 링크에 존재하는지 확인합니다.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "url 파라미터 누락 또는 빈 문자열",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     ResponseEntity<ApiResponse<UrlCheckResponse>> checkUrl(
             @AuthenticationPrincipal MemberPrincipal principal,
