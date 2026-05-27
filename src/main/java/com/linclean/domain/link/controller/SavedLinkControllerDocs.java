@@ -9,6 +9,7 @@ import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
 import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
+import com.linclean.domain.link.dto.response.UrlCheckResponse;
 import com.linclean.global.exception.ErrorResponse;
 import com.linclean.global.web.ApiResponse;
 import com.linclean.security.MemberPrincipal;
@@ -24,6 +25,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "SavedLink", description = "저장 링크 API")
 public interface SavedLinkControllerDocs {
@@ -88,6 +90,19 @@ public interface SavedLinkControllerDocs {
             @AuthenticationPrincipal MemberPrincipal principal,
             @Parameter(description = "저장 링크 ID") @PathVariable Long id,
             @RequestBody CategoryUpdateRequest request
+    );
+
+    @Operation(summary = "URL 중복 체크", description = "입력한 URL이 이미 저장된 링크에 존재하는지 확인합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "url 파라미터 누락 또는 빈 문자열",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<ApiResponse<UrlCheckResponse>> checkUrl(
+            @AuthenticationPrincipal MemberPrincipal principal,
+            @Parameter(description = "확인할 URL") @RequestParam String url
     );
 
     @Operation(summary = "제목 변경", description = "저장 링크의 제목을 변경합니다. 동일 회원 내 중복된 제목은 허용하지 않습니다.")

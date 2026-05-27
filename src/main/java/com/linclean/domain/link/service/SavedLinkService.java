@@ -14,6 +14,7 @@ import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
 import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
+import com.linclean.domain.link.dto.response.UrlCheckResponse;
 import com.linclean.domain.link.entity.Category;
 import com.linclean.domain.link.entity.SavedLink;
 import com.linclean.domain.link.exception.SavedLinkException;
@@ -172,5 +173,11 @@ public class SavedLinkService {
     private String encodeCursor(Long id) {
         return Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(id.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Transactional(readOnly = true)
+    public UrlCheckResponse checkUrl(Long memberId, String url) {
+        boolean exists = savedLinkRepository.existsByMember_IdAndAnalysis_OriginalUrl(memberId, url);
+        return new UrlCheckResponse(exists);
     }
 }

@@ -9,6 +9,7 @@ import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
 import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
+import com.linclean.domain.link.dto.response.UrlCheckResponse;
 import com.linclean.domain.link.service.SavedLinkService;
 import com.linclean.global.web.ApiResponse;
 import com.linclean.security.MemberPrincipal;
@@ -16,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -71,6 +74,16 @@ public class SavedLinkController implements SavedLinkControllerDocs {
             @PathVariable Long id,
             @RequestBody CategoryUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.of(savedLinkService.updateCategory(principal.memberId(), id, request)));
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<ApiResponse<UrlCheckResponse>> checkUrl(
+            @AuthenticationPrincipal MemberPrincipal principal,
+            @RequestParam String url) {
+        if (url.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "url 파라미터가 비어 있습니다.");
+        }
+        return ResponseEntity.ok(ApiResponse.of(savedLinkService.checkUrl(principal.memberId(), url)));
     }
 
     @PatchMapping("/{id}/title")

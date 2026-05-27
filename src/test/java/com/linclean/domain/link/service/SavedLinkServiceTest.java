@@ -13,6 +13,7 @@ import com.linclean.domain.link.dto.response.CategoryUpdateResponse;
 import com.linclean.domain.link.dto.response.SavedLinkListResponse;
 import com.linclean.domain.link.dto.response.SavedLinkResponse;
 import com.linclean.domain.link.dto.response.SavedLinkTitleUpdateResponse;
+import com.linclean.domain.link.dto.response.UrlCheckResponse;
 import com.linclean.domain.link.entity.Category;
 import com.linclean.domain.link.entity.SavedLink;
 import com.linclean.domain.analysis.exception.AnalysisException;
@@ -491,6 +492,32 @@ class SavedLinkServiceTest {
                     .isInstanceOf(SavedLinkException.class)
                     .satisfies(ex -> assertThat(((SavedLinkException) ex).getErrorCode())
                             .isEqualTo(ErrorCode.SAVED_LINK_TITLE_DUPLICATE));
+        }
+    }
+
+    // ── checkUrl ──────────────────────────────────────────────────────────
+
+    @Nested
+    class CheckUrl {
+
+        @Test
+        void existingUrl_returnsTrue() {
+            given(savedLinkRepository.existsByMember_IdAndAnalysis_OriginalUrl(1L, "https://example.com"))
+                    .willReturn(true);
+
+            UrlCheckResponse response = savedLinkService.checkUrl(1L, "https://example.com");
+
+            assertThat(response.exists()).isTrue();
+        }
+
+        @Test
+        void nonExistingUrl_returnsFalse() {
+            given(savedLinkRepository.existsByMember_IdAndAnalysis_OriginalUrl(1L, "https://unknown.com"))
+                    .willReturn(false);
+
+            UrlCheckResponse response = savedLinkService.checkUrl(1L, "https://unknown.com");
+
+            assertThat(response.exists()).isFalse();
         }
     }
 
