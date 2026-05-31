@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.linclean.domain.analysis.entity.Analysis;
 import com.linclean.domain.analysis.entity.AnalysisReason;
 import com.linclean.domain.analysis.entity.AnalysisStatus;
+import com.linclean.domain.analysis.entity.Stages;
 import com.linclean.domain.analysis.entity.Verdict;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -34,22 +35,32 @@ public class AnalysisResponse {
     private final Integer errorStage;
     private final String errorMessage;
 
+    private final String contentAnalysisError;
+
     public static AnalysisResponse forQueued(UUID analysisId) {
         return new AnalysisResponse(
                 analysisId, AnalysisStatus.QUEUED,
                 null, null, null, null, null, null, null, null,
-                null, null, null
+                null, null, null,
+                null
         );
     }
 
     public static AnalysisResponse forSucceeded(Analysis analysis, List<AnalysisReason> reasons) {
+        String contentAnalysisError = null;
+        Stages stages = analysis.getStages();
+        if (stages != null && stages.getContentAnalysis() != null
+                && !stages.getContentAnalysis().isFetched()) {
+            contentAnalysisError = stages.getContentAnalysis().getReason();
+        }
         return new AnalysisResponse(
                 analysis.getAnalysisId(), AnalysisStatus.SUCCEEDED,
                 analysis.getOriginalUrl(), analysis.getFinalUrl(),
                 analysis.getVerdict(), analysis.getScore(), analysis.getSummary(),
                 reasons.stream().map(ReasonDto::from).toList(),
                 analysis.getAnalyzedAt(), analysis.getElapsedMs(),
-                null, null, null
+                null, null, null,
+                contentAnalysisError
         );
     }
 
@@ -57,7 +68,8 @@ public class AnalysisResponse {
         return new AnalysisResponse(
                 analysis.getAnalysisId(), AnalysisStatus.FAILED,
                 analysis.getOriginalUrl(), null, null, null, null, null, null, null,
-                analysis.getErrorCode(), analysis.getErrorStage(), analysis.getErrorMessage()
+                analysis.getErrorCode(), analysis.getErrorStage(), analysis.getErrorMessage(),
+                null
         );
     }
 

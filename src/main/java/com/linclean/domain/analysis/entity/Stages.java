@@ -79,5 +79,8 @@ public class Stages {
         private boolean hasPasswordField;
         private String aiVerdict;
         private String aiReason;
+        private Integer statusCode;
+        private String error;
+        private String reason;
     }
 }
