@@ -12,3 +12,16 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:9999/.well-known/jwks.json
+
+server:
+  port: 8080
+
+clerk:
+  issuer: https://test.clerk.local
+  secret-key: sk_test_dummy
+
+analysis-engine:
+  base-url: http://localhost:8000
+
+internal:
+  api-key: test-internal-api-key
