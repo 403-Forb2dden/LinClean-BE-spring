@@ -56,12 +56,13 @@ jobs:
               "set -e",
               "cd ${{ vars.DEPLOY_DIR }}",
               "docker compose pull backend",
-              "docker compose up -d backend",
+              "docker compose up -d --wait --wait-timeout 120 backend",
               "docker image prune -f"
             ]' \
             --query "Command.CommandId" --output text)
           echo "CommandId=$cmd_id"
           # 완료까지 폴링 후 상태 검증
+          status=""
           for i in $(seq 1 30); do
             status=$(aws ssm get-command-invocation \
               --command-id "$cmd_id" \
@@ -78,3 +79,11 @@ jobs:
             esac
             sleep 10
           done
+          # 끝까지 Success가 아니면(시간 초과 등) 실패 처리
+          if [ "$status" != "Success" ]; then
+            echo "::error::Deploy did not reach Success within timeout (last status: $status)"
+            aws ssm get-command-invocation --command-id "$cmd_id" \
+              --instance-id "${{ secrets.APP_INSTANCE_ID }}" \
+              --query "StandardErrorContent" --output text || true
+            exit 1
+          fi
