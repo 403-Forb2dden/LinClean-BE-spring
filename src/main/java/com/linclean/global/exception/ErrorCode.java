@@ -1,0 +1,40 @@
+package com.linclean.global.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH_001", "인증이 필요합니다."),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_001", "토큰이 만료되었습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_002", "유효하지 않은 토큰입니다."),
+    REFRESH_TOKEN_REUSE_DETECTED(HttpStatus.UNAUTHORIZED, "AUTH_003", "Refresh Token 재사용이 감지되었습니다."),
+
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_001", "존재하지 않는 회원입니다."),
+    MEMBER_WITHDRAWAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER_002", "회원 탈퇴 처리 중 오류가 발생했습니다."),
+
+    ANALYSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "ANALYSIS_001", "분석 결과를 찾을 수 없습니다."),
+    ANALYSIS_FORBIDDEN(HttpStatus.FORBIDDEN, "ANALYSIS_002", "본인의 분석 결과만 조회할 수 있습니다."),
+    ANALYSIS_NOT_SUCCEEDED(HttpStatus.UNPROCESSABLE_ENTITY, "ANALYSIS_003", "분석이 완료된 결과만 저장할 수 있습니다."),
+
+    TERMS_NOT_FOUND(HttpStatus.NOT_FOUND, "TERMS_001", "약관 정보를 찾을 수 없습니다."),
+
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY_001", "카테고리를 찾을 수 없습니다."),
+    CATEGORY_FORBIDDEN(HttpStatus.FORBIDDEN, "CATEGORY_002", "카테고리에 대한 권한이 없습니다."),
+    CATEGORY_DUPLICATE_NAME(HttpStatus.CONFLICT, "CATEGORY_003", "이미 존재하는 카테고리 이름입니다."),
+
+    SAVED_LINK_NOT_FOUND(HttpStatus.NOT_FOUND, "SAVED_LINK_001", "저장된 링크를 찾을 수 없습니다."),
+    SAVED_LINK_FORBIDDEN_DANGER(HttpStatus.UNPROCESSABLE_ENTITY, "SAVED_LINK_002", "위험으로 분류된 URL은 저장할 수 없습니다."),
+    SAVED_LINK_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "SAVED_LINK_003", "유효하지 않은 커서 값입니다."),
+    SAVED_LINK_DUPLICATE(HttpStatus.CONFLICT, "SAVED_LINK_004", "이미 저장된 분석입니다."),
+    SAVED_LINK_TITLE_DUPLICATE(HttpStatus.CONFLICT, "SAVED_LINK_005", "이미 동일한 제목의 링크가 저장되어 있습니다."),
+
+    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE_001", "공지사항을 찾을 수 없습니다."),
+    NOTICE_INVALID_CURSOR(HttpStatus.BAD_REQUEST, "NOTICE_002", "유효하지 않은 커서입니다.");
+
+    private final HttpStatus httpStatus;
+    private final String code;
+    private final String message;
+}

@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: linclean-api
+  config:
+    import: "optional:file:.env[.properties]"
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  flyway:
+    enabled: true
+    clean-disabled: true
+    locations: classpath:db/migration
+    out-of-order: false
+    validate-on-migrate: true
+
+  jpa:
+    hibernate:
+      ddl-auto: none # 엔티티 변경 후 검증 시에만 잠시 validate 변경
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${CLERK_JWKS_URI}
+
+clerk:
+  issuer: ${CLERK_ISSUER}
+  secret-key: ${CLERK_SECRET_KEY}
+  management-api-base-url: https://api.clerk.com
+
+server:
+  port: ${API_PORT}
+
+analysis-engine:
+  base-url: ${ANALYSIS_ENGINE_URL}
+  connect-timeout-ms: ${ANALYSIS_ENGINE_CONNECT_TIMEOUT_MS:3000}
+  read-timeout-s: ${ANALYSIS_ENGINE_READ_TIMEOUT_S:5}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
+
+member:
+  withdrawal:
+    retention-days: ${MEMBER_WITHDRAWAL_RETENTION_DAYS:30}
+    hard-delete-cron: ${MEMBER_WITHDRAWAL_HARD_DELETE_CRON:0 0 3 * * *}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs

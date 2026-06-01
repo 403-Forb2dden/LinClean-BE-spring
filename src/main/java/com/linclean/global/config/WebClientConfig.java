@@ -1,0 +1,38 @@
+package com.linclean.global.config;
+
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
+
+import java.util.concurrent.TimeUnit;
+
+@Configuration
+public class WebClientConfig {
+
+    @Value("${analysis-engine.base-url}")
+    private String analysisEngineBaseUrl;
+
+    @Value("${analysis-engine.connect-timeout-ms}")
+    private int analysisEngineConnectTimeoutMs;
+
+    @Value("${analysis-engine.read-timeout-s}")
+    private int analysisEngineReadTimeoutS;
+
+    @Bean
+    public WebClient analysisEngineWebClient() {
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, analysisEngineConnectTimeoutMs)
+                .doOnConnected(conn ->
+                        conn.addHandlerLast(new ReadTimeoutHandler(analysisEngineReadTimeoutS, TimeUnit.SECONDS)));
+
+        return WebClient.builder()
+                .baseUrl(analysisEngineBaseUrl)
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+    }
+}
