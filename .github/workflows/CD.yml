@@ -51,7 +51,7 @@ jobs:
           cmd_id=$(aws ssm send-command \
             --instance-ids "${{ secrets.APP_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "deploy devine-backend ${{ needs.build-and-push.outputs.sha }}" \
+            --comment "deploy linclean-backend ${{ needs.build-and-push.outputs.sha }}" \
             --parameters commands='[
               "set -e",
               "cd ${{ vars.DEPLOY_DIR }}",
