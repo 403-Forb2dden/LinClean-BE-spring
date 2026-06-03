@@ -51,6 +51,9 @@ dependencies {
     // Swagger (SpringDoc OpenAPI)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
+    // Logging (JSON 파일 로그)
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
