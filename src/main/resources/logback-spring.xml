@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Spring Boot 기본 패턴/규칙 및 콘솔 appender 재사용 (docker logs 용) -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <!-- 로그 저장 디렉터리 (미설정 시 작업 디렉터리 기준 logs/) -->
+    <property name="LOG_DIR" value="${LOG_DIR:-logs}"/>
+
+    <!-- 일 단위 JSON 롤링 파일: 한 줄 = 로그 1건 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/app.json</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.json</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <!-- ERROR 발생 시 디스코드 웹훅 알림 (URL 미설정 시 no-op) -->
+    <appender name="DISCORD" class="com.linclean.global.log.DiscordWebhookAppender">
+        <webhookUrl>${DISCORD_WEBHOOK_URL:-}</webhookUrl>
+    </appender>
+    <!-- 요청 스레드를 막지 않도록 비동기로 감싸고, ERROR 만 큐에 넣음 -->
+    <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <appender-ref ref="DISCORD"/>
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>512</queueSize>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ASYNC_DISCORD"/>
+    </root>
+</configuration>
