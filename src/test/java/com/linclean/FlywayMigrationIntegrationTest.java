@@ -55,7 +55,7 @@ class FlywayMigrationIntegrationTest {
                 Integer.class
         );
 
-        assertThat(installedMigrations).isEqualTo(1);
+        assertThat(installedMigrations).isGreaterThanOrEqualTo(2);
         assertThat(termsCount).isGreaterThanOrEqualTo(3);
     }
 
