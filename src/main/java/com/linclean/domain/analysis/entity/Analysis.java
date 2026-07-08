@@ -106,6 +106,16 @@ public class Analysis extends BaseAuditEntity {
         this.elapsedMs = elapsedMs;
     }
 
+    public void markForRecheck(UUID newRequestId, Instant checkedAt) {
+        this.status = AnalysisStatus.QUEUED;
+        this.requestId = newRequestId;
+        this.lastCheckedAt = checkedAt;
+        // 직전이 FAILED였던 건도 재검사 대상이므로, 과거 오류 흔적을 지우고 다시 시작한다.
+        this.errorCode = null;
+        this.errorStage = null;
+        this.errorMessage = null;
+    }
+
     public void updateToFailed(
             String errorCode, Integer errorStage, String errorMessage,
             String engineVersion, Instant analyzedAt, Integer elapsedMs) {
