@@ -79,6 +79,9 @@ public class AnalysisCallbackService {
                         .message(r.message())
                         .build())
                 .toList();
+        // 재검사 성공 콜백은 SUCCEEDED 전환을 반복하므로, 기존 reason을 지운 뒤 새로 저장한다.
+        // (같은 @Transactional 안이라 커밋 전까지 다른 조회는 과거 reason을 그대로 본다.)
+        analysisReasonRepository.deleteAllByAnalysis_AnalysisId(analysis.getAnalysisId());
         analysisReasonRepository.saveAll(reasons);
     }
 

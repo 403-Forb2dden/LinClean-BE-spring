@@ -64,6 +64,11 @@ member:
     retention-days: ${MEMBER_WITHDRAWAL_RETENTION_DAYS:30}
     hard-delete-cron: ${MEMBER_WITHDRAWAL_HARD_DELETE_CRON:0 0 3 * * *}
 
+link:
+  recheck:
+    cron: ${LINK_RECHECK_CRON:0 0 4 * * MON}
+    stale-days: ${LINK_RECHECK_STALE_DAYS:7}
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

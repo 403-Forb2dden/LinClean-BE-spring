@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface AnalysisReasonRepository extends JpaRepository<AnalysisReason, Long> {
     List<AnalysisReason> findAllByAnalysis_AnalysisId(UUID analysisId);
+
+    void deleteAllByAnalysis_AnalysisId(UUID analysisId);
 }
